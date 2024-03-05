@@ -1,0 +1,7 @@
+defaults:
+  - base
+
+job_name: "7u7w_protein"
+protein_inputs: 
+  A:
+    fasta_file: examples/protein/7u7w_A.fasta

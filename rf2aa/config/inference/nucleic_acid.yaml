@@ -1,0 +1,14 @@
+defaults:
+  - base
+
+job_name: "7u7w_protein_nucleic"
+protein_inputs: 
+  A: 
+    fasta_file: examples/protein/7u7w_A.fasta
+na_inputs: 
+  B: 
+    fasta: examples/nucleic_acid/7u7w_B.fasta
+    input_type: "dna"
+  C: 
+    fasta: examples/nucleic_acid/7u7w_C.fasta
+    input_type: "dna"

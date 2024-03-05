@@ -1,0 +1,18 @@
+defaults:
+  - base
+
+job_name: 7s69_A
+
+protein_inputs: 
+  A: 
+    fasta_file: examples/protein/7s69_A.fasta
+
+sm_inputs:
+  B: 
+    input: examples/small_molecule/7s69_glycan.sdf
+    input_type: sdf
+
+covale_inputs: "[((\"A\", \"74\", \"ND2\"), (\"B\", \"1\"), (\"CW\", \"null\"))]"
+
+loader_params:
+  MAXCYCLE: 10

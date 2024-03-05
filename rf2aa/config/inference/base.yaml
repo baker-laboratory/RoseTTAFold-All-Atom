@@ -1,0 +1,70 @@
+job_name: "structure_prediction"
+output_path: ""
+checkpoint_path: RFAA_paper_weights.pt
+database_params:
+  sequencedb: ""
+  hhdb: "pdb100_2022Apr19/pdb100_2022Apr19"
+  command: make_msa.sh
+  num_cpus: 4
+  mem: 64
+protein_inputs: null
+na_inputs: null
+sm_inputs: null
+covale_inputs:  null
+residue_replacement: null
+
+chem_params:
+  use_phospate_frames_for_NA: True
+  use_cif_ordering_for_trp: True
+
+loader_params:
+  n_templ: 4
+  MAXLAT: 128
+  MAXSEQ: 1024
+  MAXCYCLE: 4
+  BLACK_HOLE_INIT: False
+  seqid: 150.0
+
+
+legacy_model_param:
+  n_extra_block: 4
+  n_main_block: 32
+  n_ref_block: 4
+  n_finetune_block: 0
+  d_msa: 256
+  d_msa_full: 64
+  d_pair: 192
+  d_templ: 64
+  n_head_msa: 8
+  n_head_pair: 6
+  n_head_templ: 4
+  d_hidden_templ: 64
+  p_drop: 0.0
+  use_chiral_l1: True
+  use_lj_l1: True
+  use_atom_frames: True
+  recycling_type: "all"
+  use_same_chain: True
+  lj_lin: 0.75
+  SE3_param: 
+    num_layers: 1
+    num_channels: 32
+    num_degrees: 2
+    l0_in_features: 64
+    l0_out_features: 64
+    l1_in_features: 3
+    l1_out_features: 2
+    num_edge_features: 64
+    n_heads: 4
+    div: 4
+  SE3_ref_param:
+    num_layers: 2
+    num_channels: 32
+    num_degrees: 2
+    l0_in_features: 64
+    l0_out_features: 64
+    l1_in_features: 3
+    l1_out_features: 2
+    num_edge_features: 64
+    n_heads: 4
+    div: 4
