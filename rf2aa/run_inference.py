@@ -45,6 +45,7 @@ class ModelRunner:
                     chains.append(chain)
                 protein_input = generate_msa_and_load_protein(
                     self.config.protein_inputs[chain]["fasta_file"],
+                    chain,
                     self
                 ) 
                 protein_inputs[chain] = protein_input

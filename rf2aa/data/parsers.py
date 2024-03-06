@@ -414,18 +414,21 @@ def parse_a3m(filename, maxseq=8000, paired=False):
     else:
         fstream = open(filename, 'r')
 
-    for line in fstream:
+    for i, line in enumerate(fstream):
         
         # skip labels
         if line[0] == '>':
             if paired: # paired MSAs only have a TAXID in the fasta header
                 taxIDs.append(line[1:].strip())
             else: # unpaired MSAs have all the metadata so use regex to pull out TAXID
-                match = re.search( r'TaxID=(\d+)', line)
-                if match:
-                    taxIDs.append(match.group(1))
+                if i == 0:
+                    taxIDs.append("query")
                 else:
-                    taxIDs.append("query") # query sequence
+                    match = re.search( r'TaxID=(\d+)', line)
+                    if match:
+                        taxIDs.append(match.group(1))
+                    else:
+                        taxIDs.append("") # query sequence
             continue
             
         # remove right whitespaces

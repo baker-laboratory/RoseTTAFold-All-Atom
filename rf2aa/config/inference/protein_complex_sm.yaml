@@ -1,0 +1,14 @@
+defaults:
+  - base
+job_name: "3fap"
+
+protein_inputs:
+  A:
+    fasta_file: examples/protein/3fap_A.fasta
+  B: 
+    fasta_file: examples/protein/3fap_B.fasta
+
+sm_inputs:
+  C:
+    input: examples/small_molecule/ARD_ideal.sdf
+    input_type: "sdf"
