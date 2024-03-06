@@ -28,6 +28,10 @@ class RawInputData:
     def query_sequence(self):
         return self.msa[0]
     
+    def sequence_string(self):
+        three_letter_sequence  = [ChemData().num2aa[num] for num in self.query_sequence()]
+        return "".join([ChemData().aa_321[three] for three in three_letter_sequence])
+    
     def is_atom(self):
         return is_atom(self.query_sequence())
 

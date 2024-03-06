@@ -88,6 +88,6 @@ def load_protein(msa_file, hhr_fn, atab_fn, model_runner):
         taxids=taxIDs,
     )
 
-def generate_msa_and_load_protein(fasta_file, model_runner):
-    msa_file, hhr_file, atab_file = make_msa(fasta_file, model_runner)
+def generate_msa_and_load_protein(fasta_file, chain, model_runner):
+    msa_file, hhr_file, atab_file = make_msa(fasta_file, chain, model_runner)
     return load_protein(str(msa_file), str(hhr_file), str(atab_file), model_runner)

@@ -1,6 +1,7 @@
 import torch
+from hashlib import md5
 
-from rf2aa.data.data_loader_utils import merge_a3m_hetero, merge_a3m_homo, merge_hetero_templates, get_term_feats
+from rf2aa.data.data_loader_utils import merge_a3m_hetero, merge_a3m_homo, merge_hetero_templates, get_term_feats, join_msas_by_taxid, expand_multi_msa
 from rf2aa.data.data_loader import RawInputData
 from rf2aa.util import center_and_realign_missing, same_chain_from_bond_feats, random_rot_trans, idx_from_Ls
 
@@ -18,7 +19,71 @@ def merge_protein_inputs(protein_inputs, deterministic: bool = False):
     # handle merging MSAs and such
     # first determine which sequence are identical, then which one have mergeable MSAs
     # then cat the templates, other feats
-    pass
+    else:
+        a3m_list = [
+            {"msa": input.msa,
+             "ins": input.ins,
+             "taxid": input.taxids
+             }
+             for input in protein_inputs.values()
+        ]
+        hash_list = [md5(input.sequence_string().encode()).hexdigest() for input in protein_inputs.values()]
+        lengths_list = [input.length() for input in protein_inputs.values()]
+        
+        seen = set()
+        unique_indices = []
+        for idx, hash in enumerate(hash_list):
+            if hash not in seen:
+                unique_indices.append(idx)
+                seen.add(hash)
+
+        unique_a3m = [a3m for i, a3m in enumerate(a3m_list) if i in unique_indices ]
+        unique_hashes = [value for index, value in enumerate(hash_list) if index in unique_indices]
+        unique_lengths_list = [value for index, value in enumerate(lengths_list) if index in unique_indices]
+
+        if len(unique_a3m) >1:
+            a3m_out = unique_a3m[0]
+            for i in range(1, len(unique_a3m)):
+                a3m_out = join_msas_by_taxid(a3m_out, a3m_list[i])
+            a3m_out = expand_multi_msa(a3m_out, unique_hashes, hash_list, unique_lengths_list, lengths_list)
+        else:
+            a3m  = unique_a3m[0]
+            msa, ins = a3m["msa"], a3m["ins"]
+            a3m_out = merge_a3m_homo(msa, ins, len(hash_list))
+        
+        # merge templates
+        max_template_dim = max([input.xyz_t.shape[0] for input in protein_inputs.values()])
+        xyz_t_list = [input.xyz_t for input in protein_inputs.values()] 
+        mask_t_list = [input.mask_t for input in protein_inputs.values()]
+        t1d_list = [input.t1d for input  in protein_inputs.values()]
+        ids  = ["inference"] * len(t1d_list)
+        xyz_t, t1d, mask_t, _ = merge_hetero_templates(xyz_t_list, t1d_list, mask_t_list, ids, lengths_list, deterministic=deterministic)
+
+        atom_frames = torch.zeros(0,3,2)
+        chirals = torch.zeros(0,5)
+        
+
+        L_total = sum(lengths_list)
+        bond_feats = torch.zeros((L_total, L_total)).long()
+        offset = 0
+        for bf in [input.bond_feats for input in protein_inputs.values()]:
+            L = bf.shape[0]
+            bond_feats[offset:offset+L, offset:offset+L] = bf
+            offset += L
+        chain_lengths = list(zip(protein_inputs.keys(), lengths_list))
+
+        merged_input = RawInputData(
+            a3m_out["msa"],
+            a3m_out["ins"],
+            bond_feats,
+            xyz_t[:max_template_dim],
+            mask_t[:max_template_dim],
+            t1d[:max_template_dim],
+            chirals,
+            atom_frames,
+            taxids=None
+        )
+        return merged_input, chain_lengths
 
 def merge_na_inputs(na_inputs):
     # should just be trivially catting features
@@ -100,14 +165,6 @@ def merge_all(
     residues_to_atomize,
     deterministic: bool = False,
 ):
-
-    #protein_lengths = [protein_input.length() for protein_input in protein_inputs.values()]
-    #na_lengths = [na_input.length() for na_input in na_inputs.values()]
-    #sm_lengths = [sm_input.length() for sm_input in sm_inputs.values()]
-    #all_lengths = protein_lengths + na_lengths + sm_lengths
-    
-    #term_info = get_term_feats(all_lengths)
-    #term_info[sum(protein_lengths):, :] = 0
 
     protein_inputs, protein_chain_lengths = merge_protein_inputs(protein_inputs, deterministic=deterministic)
     
