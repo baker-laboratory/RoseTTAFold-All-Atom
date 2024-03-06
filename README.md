@@ -23,7 +23,7 @@ RFAA is not accurate for all cases, but produces useful error estimates to allow
 1. Clone the package
 ```
 git clone https://github.com/baker-laboratory/RoseTTAFold-All-Atom
-cd RF2-allatom
+cd RoseTTAFold-All-Atom
 ```
 2. Download the container used to run RFAA.
 ```
