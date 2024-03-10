@@ -20,21 +20,29 @@ RFAA is not accurate for all cases, but produces useful error estimates to allow
 
 <a id="set-up"></a>
 ### Setup/Installation
-1. Clone the package
+1. Install Mamba
+```
+wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+bash Mambaforge-$(uname)-$(uname -m).sh  # accept all terms and install to the default location
+rm Mambaforge-$(uname)-$(uname -m).sh  # (optionally) remove installer after using it
+source ~/.bashrc  # alternatively, one can restart their shell session to achieve the same result
+```
+2. Clone the package
 ```
 git clone https://github.com/baker-laboratory/RoseTTAFold-All-Atom
 cd RoseTTAFold-All-Atom
 ```
-2. Download the container used to run RFAA.
+3. Create Mamba environment
 ```
-wget http://files.ipd.uw.edu/pub/RF-All-Atom/containers/SE3nv-20240131.sif
+mamba env create -f environment.yaml
+conda activate RFAA  # NOTE: one still needs to use `conda` to (de)activate environments
+pip3 install -e .
 ```
-3. Download the model weights.
+4. Download the model weights.
 ```
 wget http://files.ipd.uw.edu/pub/RF-All-Atom/weights/RFAA_paper_weights.pt
-
 ```
-4. Download sequence databases for MSA and template generation.
+5. Download sequence databases for MSA and template generation.
 ```
 # uniref30 [46G]
 wget http://wwwuser.gwdg.de/~compbiol/uniclust/2020_06/UniRef30_2020_06_hhsuite.tar.gz
@@ -56,11 +64,9 @@ tar xfz pdb100_2021Mar03.tar.gz
 
 We use a library called Hydra to compose config files for predictions. The actual script that runs the model is in `rf2aa/run_inference.py` and default parameters that were used to train the model are in `rf2aa/config/inference/base.yaml`. We highly suggest using the default parameters since those are closest to the training task for RFAA but we have found that increasing loader_params.MAXCYCLE=10 (default set to 4) gives better results for hard cases (as noted in the paper). 
 
-We use a container system called apptainers which have very simple syntax. Instead of developing a local conda environment, users can use the apptainer to run the model which has all the dependencies already packaged. 
-
 The general way to run the model is as follows:
 ```
-SE3nv-20240131.sif -m rf2aa.run_inference --config-name {your inference config}
+python -m rf2aa.run_inference --config-name {your inference config}
 ```
 The main inputs into the model are split into:
 - protein inputs (protein_inputs)
@@ -90,7 +96,7 @@ When specifying the fasta file for your protein, you might notice that it is nes
 
 Now to predict the sample monomer structure, run:
 ```
-SE3nv-20240131.sif -m rf2aa.run_inference --config-name protein
+python -m rf2aa.run_inference --config-name protein
 ```
 
 <a id="p-na-complex"></a>
@@ -118,7 +124,7 @@ This repo currently does not support making RNA MSAs or pairing protein MSAs wit
 
 Now, predict the example protein/NA complex. 
 ```
-SE3nv-20240131.sif -m rf2aa.run_inference --config-name nucleic_acid
+python -m rf2aa.run_inference --config-name nucleic_acid
 ```
 <a id="p-sm-complex"></a>
 ### Predicting Protein Small Molecule Complexes
@@ -143,7 +149,7 @@ Small molecule inputs are provided as sdf files or smiles strings and users are 
 
 To predict the example:
 ```
-SE3nv-20240131.sif -m rf2aa.run_inference --config-name protein_sm
+python -m rf2aa.run_inference --config-name protein_sm
 ```
 <a id="higher-order"></a>
 ### Predicting Higher Order Complexes
@@ -172,7 +178,7 @@ sm_inputs:
 ```
 And to run:
 ```
-SE3nv-20240131.sif -m rf2aa.run_inference --config-name protein_na_sm
+python -m rf2aa.run_inference --config-name protein_na_sm
 ```
 <a id="covale"></a>
 ### Predicting Covalently Modified Proteins
