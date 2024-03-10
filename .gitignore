@@ -13,3 +13,8 @@ __pycache__/
 unit_tests/
 ruff.toml
 */scratch/
+csblast-2.2.3/
+outputs/
+pdb100_2021Mar03/
+RFAA_paper_weights.pt
+SE3nv-20240131.sif
