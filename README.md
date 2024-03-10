@@ -36,7 +36,11 @@ cd RoseTTAFold-All-Atom
 ```
 mamba env create -f environment.yaml
 conda activate RFAA  # NOTE: one still needs to use `conda` to (de)activate environments
-pip3 install -e .
+
+cd rf2aa/SE3Transformer/
+pip3 install --no-cache-dir -r requirements.txt
+python3 setup.py install
+cd ../../
 ```
 4. Download the model weights.
 ```
