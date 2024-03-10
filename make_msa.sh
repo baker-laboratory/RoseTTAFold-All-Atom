@@ -112,6 +112,7 @@ then
 fi
     
 echo "Running PSIPRED"
+mkdir -p $out_dir/log
 $PIPE_DIR/input_prep/make_ss.sh $out_dir/t000_.msa0.a3m $out_dir/t000_.ss2 > $out_dir/log/make_ss.stdout 2> $out_dir/log/make_ss.stderr
 
 if [ ! -s $out_dir/t000_.hhr ]
