@@ -8,9 +8,12 @@ out_dir="$2"
 CPU="$3"
 MEM="$4"
 
-# pipe_dir
-PIPE_DIR="$5"
-DB_TEMPL="$6"
+# template database
+DB_TEMPL="$5"
+
+# current script directory (i.e., pipe directory)
+SCRIPT=`realpath -s $0`
+export PIPE_DIR=`dirname $SCRIPT`
 
 # sequence databases
 DB_UR30="$PIPE_DIR/uniclust/UniRef30_2021_06"
