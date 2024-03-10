@@ -42,11 +42,15 @@ pip3 install --no-cache-dir -r requirements.txt
 python3 setup.py install
 cd ../../
 ```
-4. Download the model weights.
+4. Install input preparation dependencies
+```
+bash install_dependencies.sh
+```
+5. Download the model weights.
 ```
 wget http://files.ipd.uw.edu/pub/RF-All-Atom/weights/RFAA_paper_weights.pt
 ```
-5. Download sequence databases for MSA and template generation.
+6. Download sequence databases for MSA and template generation.
 ```
 # uniref30 [46G]
 wget http://wwwuser.gwdg.de/~compbiol/uniclust/2020_06/UniRef30_2020_06_hhsuite.tar.gz
