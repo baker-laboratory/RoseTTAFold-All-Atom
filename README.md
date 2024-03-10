@@ -42,15 +42,23 @@ pip3 install --no-cache-dir -r requirements.txt
 python3 setup.py install
 cd ../../
 ```
-4. Install input preparation dependencies
+4. Configure signalp6 after downloading a licensed copy of it from https://services.healthtech.dtu.dk/services/SignalP-6.0/
+```
+# NOTE: (current) version 6.0h is used in this example, which was downloaded to the current working directory using `wget`
+signalp6-register signalp-6.0h.fast.tar.gz
+
+# NOTE: once registration is complete, one must rename the "distilled" model weights
+mv $CONDA_PREFIX/lib/python3.10/site-packages/signalp/model_weights/distilled_model_signalp6.pt $CONDA_PREFIX/lib/python3.10/site-packages/signalp/model_weights/ensemble_model_signalp6.pt
+```
+5. Install input preparation dependencies
 ```
 bash install_dependencies.sh
 ```
-5. Download the model weights.
+6. Download the model weights.
 ```
 wget http://files.ipd.uw.edu/pub/RF-All-Atom/weights/RFAA_paper_weights.pt
 ```
-6. Download sequence databases for MSA and template generation.
+7. Download sequence databases for MSA and template generation.
 ```
 # uniref30 [46G]
 wget http://wwwuser.gwdg.de/~compbiol/uniclust/2020_06/UniRef30_2020_06_hhsuite.tar.gz
