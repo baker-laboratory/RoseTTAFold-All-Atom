@@ -1,0 +1,13 @@
+defaults:
+  - base
+
+job_name: 7qxr
+
+protein_inputs:
+  A: 
+    fasta_file: examples/protein/7qxr.fasta
+
+sm_inputs:
+  B:
+    input: examples/small_molecule/NSW_ideal.sdf
+    input_type: "sdf"
