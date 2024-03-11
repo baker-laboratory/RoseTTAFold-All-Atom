@@ -145,27 +145,28 @@ python -m rf2aa.run_inference --config-name nucleic_acid
 <a id="p-sm-complex"></a>
 ### Predicting Protein Small Molecule Complexes
 To predict protein small molecule complexes, the syntax to input the protein remains the same. Adding in the small molecule works similarly to other inputs. 
-Here is an example (from `rf2aa/config/inference/protein_sm.yaml`):
+Here is an example (from `rf2aa/config/inference/protein_complex_sm.yaml`):
 ```
 defaults:
   - base
-
-job_name: 7qxr
+job_name: "3fap"
 
 protein_inputs:
-  A: 
-    fasta_file: examples/protein/7qxr.fasta
+  A:
+    fasta_file: examples/protein/3fap_A.fasta
+  B: 
+    fasta_file: examples/protein/3fap_B.fasta
 
 sm_inputs:
-  B:
-    input: examples/small_molecule/NSW_ideal.sdf
+  C:
+    input: examples/small_molecule/ARD_ideal.sdf
     input_type: "sdf"
 ```
 Small molecule inputs are provided as sdf files or smiles strings and users are **required** to provide both an input and an input_type field for every small molecule that they want to provide. Metal ions can also be provided as sdf files or smiles strings. 
 
 To predict the example:
 ```
-python -m rf2aa.run_inference --config-name protein_sm
+python -m rf2aa.run_inference --config-name protein_complex_sm
 ```
 <a id="higher-order"></a>
 ### Predicting Higher Order Complexes
