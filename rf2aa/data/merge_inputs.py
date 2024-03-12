@@ -73,8 +73,8 @@ def merge_protein_inputs(protein_inputs, deterministic: bool = False):
         chain_lengths = list(zip(protein_inputs.keys(), lengths_list))
 
         merged_input = RawInputData(
-            a3m_out[0],
-            a3m_out[1],
+            a3m_out["msa"],
+            a3m_out["ins"],
             bond_feats,
             xyz_t[:max_template_dim],
             mask_t[:max_template_dim],
