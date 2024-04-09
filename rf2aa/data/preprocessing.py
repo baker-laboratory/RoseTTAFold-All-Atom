@@ -4,6 +4,8 @@ from pathlib import Path
 import subprocess
 
 #from rf2aa.run_inference import ModelRunner
+script_dir=os.path.dirname(os.path.abspath(__file__)) #RoseTTAFold-All-Atom/rf2aa/data
+msa_script_dir=os.path.abspath(os.path.join(script_dir, '..','input_prep'))   #RoseTTAFold-All-Atom/rf2aa/input_prep
 
 
 def make_msa(
@@ -17,10 +19,13 @@ def make_msa(
     out_dir.mkdir(parents=True, exist_ok=True)
 
     command = model_runner.config.database_params.command
-    search_base = model_runner.config.database_params.sequencedb
+
+# sequence databases
+    DB_UR30=model_runner.config.database_params.DB_UR30
+    DB_BFD=model_runner.config.database_params.DB_BFD
     num_cpus = model_runner.config.database_params.num_cpus
     ram_gb = model_runner.config.database_params.mem
-    template_database = model_runner.config.database_params.hhdb
+    template_database = model_runner.config.database_params.DB_PDB100
 
     out_a3m = out_dir / "t000_.msa0.a3m"
     out_atab = out_dir / "t000_.atab"
@@ -28,8 +33,11 @@ def make_msa(
     if out_a3m.exists() and out_atab.exists() and out_hhr.exists():
         return out_a3m, out_hhr, out_atab
 
-    search_command = f"./{command} {fasta_file} {out_dir} {num_cpus} {ram_gb} {search_base} {template_database}"
+    search_command = f"{msa_script_dir}/{command} {os.path.abspath(fasta_file)} {os.path.abspath(out_dir)} {num_cpus} {ram_gb} {DB_UR30} {DB_BFD} {template_database}"
     print(search_command)
     _ = subprocess.run(search_command, shell=True)
+
+    if _.returncode != 0:
+        raise RuntimeError(f"Failed to execute command {search_command}")
     return out_a3m, out_hhr, out_atab
 

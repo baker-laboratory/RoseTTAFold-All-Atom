@@ -1,0 +1,22 @@
+[build-system]
+requires = ["poetry-core>=1.0.0,<2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "rfaa"
+version = "1.0.0"
+description = "RoseTTAFold-All-Atom code"
+authors = ["Name <email@address>"]
+
+readme = "README.md"
+license = "MIT"
+repository = "https://github.com/baker-laboratory/RoseTTAFold-All-Atom"
+classifiers = [
+    "Topic :: Scientific/Engineering :: Biochemistry",
+    "Topic :: Scientific/Engineering :: Protein Engineering"
+]
+
+packages = [
+    { include = "rf2aa" },
+    { include = "rf2aa/*.py" },
+]

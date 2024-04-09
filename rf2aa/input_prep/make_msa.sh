@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # inputs
 in_fasta="$1"
@@ -8,16 +9,22 @@ out_dir="$2"
 CPU="$3"
 MEM="$4"
 
+export BLAST_LEGACY=$CONDA_PREFIX/share/blast-2.2.26/blast-2.2.26
+export BLASTMAT=$BLAST_LEGACY/data/
+export BLAST_LEGACY_BIN=$BLAST_LEGACY/bin
+
+export PATH=$BLAST_LEGACY_BIN:$PATH
+
+# sequence databases
+DB_UR30="$5"
+DB_BFD="$6"
+
 # template database
-DB_TEMPL="$5"
+DB_TEMPL="$7"
 
 # current script directory (i.e., pipe directory)
 SCRIPT=`realpath -s $0`
 export PIPE_DIR=`dirname $SCRIPT`
-
-# sequence databases
-DB_UR30="$PIPE_DIR/uniclust/UniRef30_2021_06"
-DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 
 # Running signalP 6.0
 mkdir -p $out_dir/signalp
@@ -30,7 +37,7 @@ then
 fi
 
 # setup hhblits command
-export HHLIB=/software/hhsuite/build/bin/
+export HHLIB=$(dirname $(which hhblits))
 export PATH=$HHLIB:$PATH
 HHBLITS_UR30="hhblits -o /dev/null -mact 0.35 -maxfilt 100000000 -neffmax 20 -cov 25 -cpu $CPU -nodiff -realign_max 100000000 -maxseq 1000000 -maxmem $MEM -n 4 -d $DB_UR30"
 HHBLITS_BFD="hhblits -o /dev/null -mact 0.35 -maxfilt 100000000 -neffmax 20 -cov 25 -cpu $CPU -nodiff -realign_max 100000000 -maxseq 1000000 -maxmem $MEM -n 4 -d $DB_BFD"
@@ -113,7 +120,7 @@ fi
     
 echo "Running PSIPRED"
 mkdir -p $out_dir/log
-$PIPE_DIR/input_prep/make_ss.sh $out_dir/t000_.msa0.a3m $out_dir/t000_.ss2 > $out_dir/log/make_ss.stdout 2> $out_dir/log/make_ss.stderr
+$PIPE_DIR/make_ss.sh $out_dir/t000_.msa0.a3m $out_dir/t000_.ss2 > $out_dir/log/make_ss.stdout 2> $out_dir/log/make_ss.stderr
 
 if [ ! -s $out_dir/t000_.hhr ]
 then

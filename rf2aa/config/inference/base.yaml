@@ -1,12 +1,13 @@
 job_name: "structure_prediction"
-output_path: ""
-checkpoint_path: RFAA_paper_weights.pt
+output_path: "output/structure_prediction"
+checkpoint_path: /mnt/db/weights/RoseTTAFoldAA/RFAA_paper_weights.pt
 database_params:
-  sequencedb: ""
-  hhdb: "pdb100_2021Mar03/pdb100_2021Mar03"
+  DB_UR30: "/mnt/db/uniref30_uc30/UniRef30_2022_02/UniRef30_2022_02"
+  DB_BFD: "/mnt/db/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+  DB_PDB100: "/mnt/db/pdb100/pdb100_2021Mar03/pdb100_2021Mar03"
   command: make_msa.sh
-  num_cpus: 4
-  mem: 64
+  num_cpus: 32
+  mem: 256
 protein_inputs: null
 na_inputs: null
 sm_inputs: null
