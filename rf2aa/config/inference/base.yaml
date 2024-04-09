@@ -8,6 +8,8 @@ database_params:
   command: make_msa.sh
   num_cpus: 4
   mem: 64
+
+force_cpu: False # force to use cpu if CUDA out of memory
 protein_inputs: null
 na_inputs: null
 sm_inputs: null

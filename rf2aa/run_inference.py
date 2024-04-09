@@ -26,7 +26,7 @@ class ModelRunner:
         FFindexDB = namedtuple("FFindexDB", "index, data")
         self.ffdb = FFindexDB(read_index(config.database_params.DB_PDB100+'_pdb.ffindex'),
                               read_data(config.database_params.DB_PDB100+'_pdb.ffdata'))
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda:0" if torch.cuda.is_available() and not config.force_cpu else "cpu"
         self.xyz_converter = XYZConverter()
         self.deterministic = config.get("deterministic", False)
         self.molecule_db = load_pdb_ideal_sdf_strings()
