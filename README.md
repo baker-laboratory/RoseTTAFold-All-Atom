@@ -41,6 +41,12 @@ cd rf2aa/SE3Transformer/
 pip3 install --no-cache-dir -r requirements.txt
 python3 setup.py install
 cd ../../
+
+```
+Change the default checkpoint_path/database paths in `RoseTTAFold-All-Atom/rf2aa/config/inference/base.yaml` 
+then install `rf2aa` as a python module that can be called everywhere.
+```shell
+pip install . --no-dependencies   --no-cache-dir
 ```
 4. Configure signalp6 after downloading a licensed copy of it from https://services.healthtech.dtu.dk/services/SignalP-6.0/
 ```
