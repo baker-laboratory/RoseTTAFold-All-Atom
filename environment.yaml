@@ -325,3 +325,8 @@ dependencies:
       - smmap==5.0.1
       - subprocess32==3.5.4
       - wandb==0.12.0
+      - gradio
+      - gradio_molecule3d
+      - gradio_cofoldinginput
+      - biopython
+      - plotly
