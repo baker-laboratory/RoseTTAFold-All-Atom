@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     tar \
     wget \
     unzip \
+	vim \
     && rm -rf /var/lib/apt/lists/* \
     && micromamba install --name base -y python=3.11 -c conda-forge \
     && micromamba clean --all --yes
@@ -40,15 +41,16 @@ RUN apt-get update && apt-get install -y \
 # DPF: everything below this line will have micromamba env activated
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 WORKDIR /opt
+ADD . /opt/RoseTTAFold-All-Atom/
 # DPF torch before dgl
 # Must use -e install as we want to use schedule files from ISOG3
 RUN pip --no-cache-dir install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 \
     && pip --no-cache-dir install dgl -f https://data.dgl.ai/wheels/cu118/repo.html \
     && pip --no-cache-dir install dglgo -f https://data.dgl.ai/wheels-test/repo.html \
     && pip --no-cache-dir install "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html \
-    && git clone https://github.com/sokrypton/ColabDesign.git \
-    && pip --no-cache-dir install -e ./ColabDesign \
-    && git clone https://github.com/baker-laboratory/RoseTTAFold-All-Atom \
+#    && git clone https://github.com/sokrypton/ColabDesign.git \
+#    && pip --no-cache-dir install -e ./ColabDesign \
+#    && git clone https://github.com/baker-laboratory/RoseTTAFold-All-Atom \
     && pip --no-cache-dir install -e ./RoseTTAFold-All-Atom/rf2aa/SE3Transformer --no-deps  \
 #    && pip --no-cache-dir install -e ./RoseTTAFold-All-Atom --no-deps \
     && pip --no-cache-dir install hydra-core pyrsistent jedi omegaconf icecream scipy opt_einsum opt_einsum_fx e3nn wandb decorator pynvml \
@@ -58,10 +60,10 @@ RUN pip --no-cache-dir install torch torchvision torchaudio --index-url https://
     && for x in cublas cuda_cupti cuda_runtime cufft cusolver cusparse; do CURVAR=$(dirname $(python -c "import nvidia.$x;print(nvidia.$x.__file__)")) && echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$CURVAR/lib" >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh; done
 
 # Download schedules
-RUN cd /opt \
-    && aria2c -s 16  -x 16 https://files.ipd.uw.edu/krypton/schedules.zip \
-    && unzip schedules.zip \
-    && rm schedules.zip 
+#RUN cd /opt \
+#    && aria2c -s 16  -x 16 https://files.ipd.uw.edu/krypton/schedules.zip \
+#    && unzip schedules.zip \
+#    && rm schedules.zip 
 
 # Add scripts and files
 #COPY proteinmpnn_human_only_training_01.pkl /opt/run/proteinmpnn_human_only_training_01.pkl
@@ -72,5 +74,27 @@ RUN cd /opt \
 # Must be hardcoded for RFDiffusion
 WORKDIR /opt/RoseTTAFold-All-Atom
 
-#RUN CONDA_OVERRIDE_CUDA="11.8" micromamba install -y -n base -f /opt/RoseTTAFold-All-Atom/environment.yaml && \
-#    micromamba clean --all --yes
+ADD install_dependencies.sh /opt/RoseTTAFold-All-Atom/install_dependencies.sh
+RUN bash /opt/RoseTTAFold-All-Atom/install_dependencies.sh
+
+#Get The Weights
+RUN wget http://files.ipd.uw.edu/pub/RF-All-Atom/weights/RFAA_paper_weights.pt
+
+ADD environment.yaml /opt/RoseTTAFold-All-Atom/environment.yaml
+
+RUN CONDA_OVERRIDE_CUDA="11.8" micromamba install -y -n base -f /opt/RoseTTAFold-All-Atom/environment.yaml && \
+    micromamba clean --all --yes
+
+## NOTE: (current) version 6.0h is used in this example, which was downloaded to the current working directory using `wget`
+#RUN signalp6-register signalp-6.0h.fast.tar.gz
+#
+## NOTE: once registration is complete, one must rename the "distilled" model weights
+#RUN mv $CONDA_PREFIX/lib/python3.10/site-packages/signalp/model_weights/distilled_model_signalp6.pt $CONDA_PREFIX/lib/python3.10/site-packages/signalp/model_weights/ensemble_model_signalp6.pt
+#
+#Install Dependencies
+
+#Move this to the top later
+ENV DB_DIR=/mnt/databases/
+ENV DB_UR30=/mnt/databases/uniref30/UniRef30_2021_03
+ENV DB_BFD=/mnt/databases/bfd/
+ADD brandons-vim-rc /.vimrc
