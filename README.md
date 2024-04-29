@@ -74,7 +74,15 @@ tar xfz bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz -C ./bfd
 wget https://files.ipd.uw.edu/pub/RoseTTAFold/pdb100_2021Mar03.tar.gz
 tar xfz pdb100_2021Mar03.tar.gz
 ```
-
+8. Download BLAST
+```
+wget https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz
+mkdir -p blast-2.2.26
+tar -xf blast-2.2.26-x64-linux.tar.gz -C blast-2.2.26
+cp -r blast-2.2.26/blast-2.2.26/ blast-2.2.26_bk
+rm -r blast-2.2.26
+mv blast-2.2.26_bk/ blast-2.2.26
+```
 <a id="inference-config"></a>
 ### Inference Configs Using Hydra
 
