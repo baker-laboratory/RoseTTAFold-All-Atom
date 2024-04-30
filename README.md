@@ -3,7 +3,7 @@ Code for RoseTTAFold All-Atom
 <p align="right">
   <img style="float: right" src="./img/RFAA.png" alt="alt text" width="600px" align="right"/>
 </p>
-RoseTTAFold All-Atom is a biomolecular structure prediction neural network that can predict a broad range of biomolecular assemblies including proteins, nucleic acids, small molecules, covalent modifications and metals as outlined in the RFAA paper. 
+RoseTTAFold All-Atom is a biomolecular structure prediction neural network that can predict a broad range of biomolecular assemblies including proteins, nucleic acids, small molecules, covalent modifications and metals as outlined in the <a href='https://www.science.org/doi/10.1126/science.adl2528'>RFAA paper</a>. 
 
 RFAA is not accurate for all cases, but produces useful error estimates to allow users to identify accurate predictions. Below are the instructions for setting up and using the model. 
 
