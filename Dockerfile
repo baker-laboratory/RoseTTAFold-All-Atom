@@ -78,7 +78,7 @@ ADD install_dependencies.sh /opt/RoseTTAFold-All-Atom/install_dependencies.sh
 RUN bash /opt/RoseTTAFold-All-Atom/install_dependencies.sh
 
 #Get The Weights
-RUN wget http://files.ipd.uw.edu/pub/RF-All-Atom/weights/RFAA_paper_weights.pt
+#RUN wget http://files.ipd.uw.edu/pub/RF-All-Atom/weights/RFAA_paper_weights.pt
 
 ADD environment.yaml /opt/RoseTTAFold-All-Atom/environment.yaml
 
@@ -95,6 +95,9 @@ RUN CONDA_OVERRIDE_CUDA="11.8" micromamba install -y -n base -f /opt/RoseTTAFold
 
 #Move this to the top later
 ENV DB_DIR=/mnt/databases/
-ENV DB_UR30=/mnt/databases/uniref30/UniRef30_2021_03
+ENV DB_UR30=/mnt/databases/UniRef30_2020_06/UniRef30_2020_06
 ENV DB_BFD=/mnt/databases/bfd/
 ADD brandons-vim-rc /.vimrc
+ADD testrun.sh /usr/local/bin/
+#RUN chmod +x /usr/local/bin/
+ENTRYPOINT ["micromamba", "run", "-n", "base"]
