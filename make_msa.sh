@@ -15,11 +15,7 @@ DB_TEMPL="$5"
 SCRIPT=`realpath -s $0`
 
 #This is a hacky want to properly set this but I'm leaving it now for legacy reasons
-if [ -z  "${DB_DIR}" ]; then
-    export PIPE_DIR=`dirname $SCRIPT`
-else
-    export PIPE_DIR=$DB_DIR
-fi
+export PIPE_DIR=`dirname $SCRIPT`
 
 # sequence databases
 if [ -z  "${DB_UR30}" ]; then
