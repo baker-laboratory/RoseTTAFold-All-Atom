@@ -3,7 +3,7 @@
 
 # install external program not supported by conda installation
 case "$(uname -s)" in
-    Linux*)     platform=linux;;
+    Linux*)     platform=linux64;; #We might need to update this to get the 32 bit version when necessary
     Darwin*)    platform=macosx;;
     *)          echo "unsupported OS type. exiting"; exit 1
 esac
@@ -17,6 +17,6 @@ fi
 
 # download cs-blast
 echo "Downloading cs-blast ..."
-wget http://wwwuser.gwdg.de/~compbiol/data/csblast/releases/csblast-2.2.3_${platform}.tar.gz -O csblast-2.2.3.tar.gz
+wget https://wwwuser.gwdg.de/~compbiol/data/csblast/releases/csblast-2.2.3_${platform}.tar.gz -O csblast-2.2.3.tar.gz
 mkdir -p csblast-2.2.3
 tar xf csblast-2.2.3.tar.gz -C csblast-2.2.3 --strip-components=1

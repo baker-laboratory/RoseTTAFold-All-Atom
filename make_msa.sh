@@ -13,11 +13,22 @@ DB_TEMPL="$5"
 
 # current script directory (i.e., pipe directory)
 SCRIPT=`realpath -s $0`
+
+#This is a hacky want to properly set this but I'm leaving it now for legacy reasons
 export PIPE_DIR=`dirname $SCRIPT`
 
 # sequence databases
-DB_UR30="$PIPE_DIR/uniclust/UniRef30_2021_06"
-DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+if [ -z  "${DB_UR30}" ]; then
+    DB_UR30="$DB_DIR/uniclust/UniRef30_2021_06"
+else
+    DB_UR30=$DB_UR30
+fi
+
+if [ -z  "${DB_BDF}" ]; then
+    DB_BFD="$DB_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+else
+    DB_BFD=$DB_BFD
+fi
 
 # Running signalP 6.0
 mkdir -p $out_dir/signalp
