@@ -13,8 +13,6 @@ DB_TEMPL="$5"
 
 # current script directory (i.e., pipe directory)
 SCRIPT=`realpath -s $0`
-
-#This is a hacky want to properly set this but I'm leaving it now for legacy reasons
 export PIPE_DIR=`dirname $SCRIPT`
 
 # sequence databases
