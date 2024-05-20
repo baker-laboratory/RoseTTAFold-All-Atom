@@ -19,13 +19,13 @@ export PIPE_DIR=`dirname $SCRIPT`
 
 # sequence databases
 if [ -z  "${DB_UR30}" ]; then
-    DB_UR30="$DB_DIR/uniclust/UniRef30_2021_06"
+    DB_UR30="$PIPE_DIR/UniRef30_2020_06/UniRef30_2020_06"
 else
     DB_UR30=$DB_UR30
 fi
 
 if [ -z  "${DB_BDF}" ]; then
-    DB_BFD="$DB_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+    DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 else
     DB_BFD=$DB_BFD
 fi
