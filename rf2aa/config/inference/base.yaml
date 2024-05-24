@@ -1,9 +1,9 @@
 job_name: "structure_prediction"
 output_path: ""
-checkpoint_path: /mnt/databases/rfaa/latest/weights/RFAA_paper_weights.pt
+checkpoint_path: RFAA_paper_weights.pt
 database_params:
-  sequencedb: "/mnt/databases/rfaa/latest/pdb100_2021Mar03/pdb100_2021Mar03"
-  hhdb: "/mnt/databases/rfaa/latest/pdb100_2021Mar03/pdb100_2021Mar03"
+  sequencedb: ""
+  hhdb: "pdb100_2021Mar03/pdb100_2021Mar03"
   command: make_msa.sh
   num_cpus: 4
   mem: 64
