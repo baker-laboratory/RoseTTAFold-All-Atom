@@ -74,6 +74,7 @@ tar xfz bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz -C ./bfd
 wget https://files.ipd.uw.edu/pub/RoseTTAFold/pdb100_2021Mar03.tar.gz
 tar xfz pdb100_2021Mar03.tar.gz
 ```
+
 8. Download BLAST
 ```
 wget https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz
@@ -83,6 +84,38 @@ cp -r blast-2.2.26/blast-2.2.26/ blast-2.2.26_bk
 rm -r blast-2.2.26
 mv blast-2.2.26_bk/ blast-2.2.26
 ```
+
+9. Set Environment Variables/Configs
+To enable the ability to run outside of the main directory the following variables must bet set for each database.
+This can be done by setting them permanently in your .bashrc or temporarily by running the following commands from the directory with the databases. 
+
+```
+export DB_UR30=`pwd`/UniRef30_2020_06
+export DB_BFD=`pwd`/bfd/
+export BLASTMAT=`pwd`/blast-2.2.26/data/
+```
+You will also need to set the sequence and hh databases in the config file described below as well as set the path to the weights.
+
+To do this edit rf2aa/config/inference/base.yml and set the following database_params as well as the checkpoint_path:
+sequencedb: "$path_to_databases/pdb100_2021Mar03/pdb100_2021Mar03"
+hhdb: "$path_to_databases/pdb100_2021Mar03/pdb100_2021Mar03"
+checkpoint_path: $path_to_weights/RFAA_paper_weights.pt
+
+<a id="docker"></a>
+### Running In Docker
+You can avoid creating a conda environment and installing the dependencies by instead utilizing a docker image. You will need to run on a machine with gpus available and nvidia drivers installed. 
+First build the image by running the following command from the main directory
+```
+docker build . -t rosetta-fold-all-atom
+```
+In order to keep the container size manageable databases must be mounted inside the image from your filesystem as they are not included. 
+You will also need to include all the relevant input files including the fasta files, ligand sdfs, and config file in the directory you will launch the job from.
+The config file will needs to specify paths as they are viewed from inside the container. The following command will mount the current directory as /workdir/ inside the container. 
+Therefore, inputs should be specified using /workdir/$input.file
+The command to run is as follows:
+```
+
+
 <a id="inference-config"></a>
 ### Inference Configs Using Hydra
 
