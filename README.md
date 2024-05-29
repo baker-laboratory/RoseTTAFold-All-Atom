@@ -106,14 +106,29 @@ checkpoint_path: $path_to_weights/RFAA_paper_weights.pt
 You can avoid creating a conda environment and installing the dependencies by instead utilizing a docker image. You will need to run on a machine with gpus available and nvidia drivers installed. 
 First build the image by running the following command from the main directory
 ```
-docker build . -t rosetta-fold-all-atom
+docker build . -t rosetta-fold-all-atom:latest
 ```
-In order to keep the container size manageable databases must be mounted inside the image from your filesystem as they are not included. 
+In order to keep the container size manageable databases must be mounted inside the image from your filesystem as they are not included in the base image.
 You will also need to include all the relevant input files including the fasta files, ligand sdfs, and config file in the directory you will launch the job from.
-The config file will needs to specify paths as they are viewed from inside the container. The following command will mount the current directory as /workdir/ inside the container. 
+The config file will needs to specify paths as they are viewed from inside the container.
+The following command will mount the current directory as /workdir/ inside the container. 
 Therefore, inputs should be specified using /workdir/$input.file
+See the config file in examples/docker/docker.yaml for what this looks like. 
 The command to run is as follows:
 ```
+docker run --gpus all\
+    -v `pwd`:/workdir/\
+    -v $path_to_uniref30:/mnt/databases/rfaa/latest/UniRef30_2020_06b/\
+    -v $path_to_bfd:/mnt/databases/rfaa/latest/bfd/\
+    -v $path_to_pdb100_2021Mar03.:/pdb100_2021Mar03/\
+    -v $path_to_RFAA_paper_weights.pt:/weights/RFAA_paper_weights.pt\
+rosetta-fold-all-atom:latest\
+python -m rf2aa.run_inference -cd /workdir/ --config-name $config_name
+```
+
+To test this on the included example change to the example/docker/ directory and run the command above using the paths to the respective databases where applicable and "docker" for $config_name
+
+Note: Due to licensing issues signalp6 is not included in the docker container and will not be utilized when using it. 
 
 
 <a id="inference-config"></a>
