@@ -96,7 +96,7 @@ export BLASTMAT=`pwd`/blast-2.2.26/data/
 ```
 You will also need to set the sequence and hh databases in the config file described below as well as set the path to the weights.
 
-To do this edit rf2aa/config/inference/base.yml and set the following database_params as well as the checkpoint_path:
+To do this edit rf2aa/config/inference/base.yml and set the following database_params as well as the checkpoint_path.
 
 sequencedb: "$path_to_databases/pdb100_2021Mar03/pdb100_2021Mar03"
 
