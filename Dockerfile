@@ -65,7 +65,7 @@ ADD environment.yaml /opt/RoseTTAFold-All-Atom/environment.yaml
 RUN CONDA_OVERRIDE_CUDA="11.8" micromamba install -y -n base -f /opt/RoseTTAFold-All-Atom/environment.yaml && \
     micromamba clean --all --yes
 
-ENV DB_UR30=/mnt/databases/rfaa/latest/UniRef30_2020_06b/UniRef30_2020_06
+ENV DB_UR30=/mnt/databases/rfaa/latest/UniRef30_2020_06/UniRef30_2020_06
 ENV DB_BFD=/mnt/databases/rfaa/latest/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt
 ENV BLASTMAT=/opt/RoseTTAFold-All-Atom/blast-2.2.26/data/
 ENTRYPOINT ["micromamba", "run", "-n", "base"]
