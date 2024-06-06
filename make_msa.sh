@@ -24,7 +24,7 @@ else
     DB_UR30=$DB_UR30
 fi
 
-if [ -z  "${DB_BDF}" ]; then
+if [ -z  "${DB_BFD}" ]; then
     DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 else
     DB_BFD=$DB_BFD
