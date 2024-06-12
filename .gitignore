@@ -18,3 +18,4 @@ outputs/
 pdb100_2021Mar03/
 RFAA_paper_weights.pt
 SE3nv-20240131.sif
+docker/build_dependencies
