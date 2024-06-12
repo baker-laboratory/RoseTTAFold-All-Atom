@@ -27,6 +27,31 @@ class AtomizedResidue:
     original_chain: str
     index_in_original_chain: int
 
+def load_residue_replacement( residue_replacement, model_runner ):
+    chainid_to_input = {}
+    residues_to_atomize = []
+    for chain in residue_replacement:
+        input_file = residue_replacement[chain]["input"]
+        input_type = residue_replacement[chain]["input_type"]
+        assert input_type in ["sdf", "mol2", "pdb"], "only sdf, mol2 and pdb files are supported"
+        obmol, msa, ins, xyz, mask = parse_mol(
+            input_file, filetype=input_type, string=False, generate_conformer=True
+        )
+
+        input = compute_features_from_obmol(obmol, msa, xyz, model_runner)
+        chainid_to_input[chain] = input
+        N_index_atom = int(residue_replacement[chain].N_index_atom)
+        C_index_atom = int(residue_replacement[chain].C_index_atom)
+        residues_to_atomize.append(AtomizedResidue(
+            chain,
+            0,
+            N_index_atom-1,
+            C_index_atom-1,
+            residue_replacement[chain].protein_chain,
+            int(residue_replacement[chain].residue_index_to_replace) - 1   
+        ))
+        
+    return chainid_to_input, residues_to_atomize
 
 def load_covalent_molecules(protein_inputs, config, model_runner):
     if config.covale_inputs is None:

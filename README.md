@@ -263,6 +263,37 @@ becomes this so it can be parsed correctly:
 
 We know this syntax is hard to work with and we are happy to review PRs if anyone in the community can figure out how to specify all the necessary requirements in a more user friendly way!
 
+<a id="residue_replacement"></a>
+### Predicting Proteins with Chemical Modifications or Non-Carnonical Amino Acids
+To predict proteins with chemically modified residues or non-canonical amino acids, you can use residue replacement. This involves replacing the chemically modified residue or NCAA with a small molecule file that defines the structure of the modified residue. Here is an example of predicting a phosphorylated protein structure. (from `rf2aa/config/inference/residue_replacement.yaml`)
+```
+defaults:
+  - base
+job_name: "1h4x"
+
+protein_inputs:
+  A:
+    fasta_file: examples/residue_replacement/1h4x.fasta
+
+residue_replacement:
+  B:
+    protein_chain: A
+    residue_index_to_replace: 57
+    input: examples/residue_replacement/SEP_ideal_trim.sdf
+    input_type: "sdf"
+    N_index_atom: 1
+    C_index_atom: 5
+
+loader_params:
+  MAXCYCLE: 10
+```
+To predict the example, run:
+```
+python -m rf2aa.run_inference --config-name residue_replacement
+```
+In this example, we use the phosphoserine structure defined in `SEP_ideal_trim.sdf` and treat it as an atomized residue to replace the residue 57 in chain A. Please note that one extra oxygen atom has to be removed from the carboxylic group. `N_index_atom` and `C_index_atom` define the atoms to connect to the previous and the next residues, respectively. 
+
+
 <a id="outputs"></a>
 ### Understanding model outputs
 
