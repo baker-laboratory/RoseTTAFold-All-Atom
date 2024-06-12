@@ -264,7 +264,7 @@ becomes this so it can be parsed correctly:
 We know this syntax is hard to work with and we are happy to review PRs if anyone in the community can figure out how to specify all the necessary requirements in a more user friendly way!
 
 <a id="residue_replacement"></a>
-### Predicting Proteins with Chemical Modifications or Non-Carnonical Amino Acids
+### Predicting Proteins with Chemical Modifications or Non-Canonical Amino Acids
 To predict proteins with chemically modified residues or non-canonical amino acids, you can use residue replacement. This involves replacing the chemically modified residue or NCAA with a small molecule file that defines the structure of the modified residue. Here is an example of predicting a phosphorylated protein structure. (from `rf2aa/config/inference/residue_replacement.yaml`)
 ```
 defaults:
