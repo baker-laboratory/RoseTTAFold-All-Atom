@@ -227,7 +227,7 @@ def parse_multichain_fasta(filename,  maxseq=10000, rna_alphabet=False, dna_alph
 
     # convert letters into numbers
     if rna_alphabet:
-        alphabet = np.array(list("00000000000000000000-000000ACGTN"), dtype='|S1').view(np.uint8)
+        alphabet = np.array(list("00000000000000000000-000000ACGUN"), dtype='|S1').view(np.uint8)
     elif dna_alphabet:
         alphabet = np.array(list("00000000000000000000-0ACGTD00000"), dtype='|S1').view(np.uint8)
     else:
