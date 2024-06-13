@@ -1,0 +1,19 @@
+defaults:
+  - base
+job_name: "1h4x"
+
+protein_inputs:
+  A:
+    fasta_file: examples/residue_replacement/1h4x.fasta
+
+residue_replacement:
+  B:
+    protein_chain: A
+    residue_index_to_replace: 57
+    input: examples/residue_replacement/SEP_ideal_trim.sdf
+    input_type: "sdf"
+    N_index_atom: 1
+    C_index_atom: 5
+
+loader_params:
+  MAXCYCLE: 10

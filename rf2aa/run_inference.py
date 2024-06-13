@@ -5,7 +5,7 @@ import torch.nn as nn
 from dataclasses import asdict
 
 from rf2aa.data.merge_inputs import merge_all
-from rf2aa.data.covale import load_covalent_molecules
+from rf2aa.data.covale import load_covalent_molecules, load_residue_replacement
 from rf2aa.data.nucleic_acid import load_nucleic_acid
 from rf2aa.data.protein import generate_msa_and_load_protein
 from rf2aa.data.small_molecule import load_small_molecule
@@ -86,10 +86,14 @@ class ModelRunner:
                 sm_inputs[chain] = sm_input
 
         if self.config.residue_replacement is not None:
-            # add to the sm_inputs list
-            # add to residues to atomize
-            raise NotImplementedError("Modres inference is not implemented")
-        
+            for chain in self.config.residue_replacement:
+                protein_chain = self.config.residue_replacement[chain].protein_chain
+                if protein_chain not in protein_inputs:
+                    raise ValueError(f"Protein chain {protein_chain} not found in protein inputs")
+                
+                sm_inputs, residues_to_atomize_replacement = load_residue_replacement(self.config.residue_replacement, self)
+                sm_inputs.update(sm_inputs)
+                residues_to_atomize.extend(residues_to_atomize_replacement)
         raw_data = merge_all(protein_inputs, na_inputs, sm_inputs, residues_to_atomize, deterministic=self.deterministic)
         self.raw_data = raw_data
 
