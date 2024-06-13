@@ -16,8 +16,17 @@ SCRIPT=`realpath -s $0`
 export PIPE_DIR=`dirname $SCRIPT`
 
 # sequence databases
-DB_UR30="$PIPE_DIR/UniRef30_2020_06/UniRef30_2020_06"
-DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+if [ -z  "${DB_UR30}" ]; then
+    DB_UR30="$PIPE_DIR/UniRef30_2020_06/UniRef30_2020_06"
+else
+    DB_UR30=$DB_UR30
+fi
+
+if [ -z  "${DB_BFD}" ]; then
+    DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+else
+    DB_BFD=$DB_BFD
+fi
 
 # Running signalP 6.0
 mkdir -p $out_dir/signalp

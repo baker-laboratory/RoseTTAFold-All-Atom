@@ -1,0 +1,21 @@
+defaults:
+  - base
+checkpoint_path: /weights/RFAA_paper_weights.pt
+database_params:
+  sequencedb: "/pdb100_2021Mar03/pdb100_2021Mar03"
+  hhdb: "/pdb100_2021Mar03/pdb100_2021Mar03"
+  command: make_msa.sh
+  num_cpus: 4
+  mem: 64
+job_name: "/workdir/3fap"
+
+protein_inputs:
+  A:
+    fasta_file: /workdir/3fap_A.fasta
+  B: 
+    fasta_file: /workdir/3fap_B.fasta
+
+sm_inputs:
+  C:
+    input: /workdir/ARD_ideal.sdf
+    input_type: "sdf"
