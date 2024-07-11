@@ -88,7 +88,7 @@ mv blast-2.2.26_bk/ blast-2.2.26
 
 We use a library called Hydra to compose config files for predictions. The actual script that runs the model is in `rf2aa/run_inference.py` and default parameters that were used to train the model are in `rf2aa/config/inference/base.yaml`. We highly suggest using the default parameters since those are closest to the training task for RFAA but we have found that increasing loader_params.MAXCYCLE=10 (default set to 4) gives better results for hard cases (as noted in the paper). 
 
-The general way to run the model is as follows:
+The general way to run the model using the command line is as follows:
 ```
 python -m rf2aa.run_inference --config-name {your inference config}
 ```
@@ -98,6 +98,10 @@ The main inputs into the model are split into:
 - small molecule inputs (sm_inputs)
 - covalent bonds between protein chains and small molecule chains
 - modified or unnatural amino acids (COMING SOON)
+
+You can generate inputs for the model using this [webapp](https://hf.co/spaces/simonduerr/RFAA). 
+
+Predictions can also be run interactively by launching `python ui.py` and opening the displayed link in a web browser. 
 
 In the following sections, we will describe how to set up configs for different prediction tasks that we described in the paper. 
 
@@ -261,7 +265,7 @@ becomes this so it can be parsed correctly:
 "[((\"A\", \"74\", \"ND2\"), (\"B\", \"1\"), (\"CW\", \"null\"))]"
 ```
 
-We know this syntax is hard to work with and we are happy to review PRs if anyone in the community can figure out how to specify all the necessary requirements in a more user friendly way!
+To generate this input you can use the [webapp](https://hf.co/spaces/simonduerr/RFAA) to generate this input automatically and delete any undesired atoms/leaving groups. 
 
 <a id="outputs"></a>
 ### Understanding model outputs
