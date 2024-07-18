@@ -70,12 +70,13 @@ wget https://bfd.mmseqs.com/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted
 mkdir -p bfd
 tar xfz bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz -C ./bfd
 
-# structure templates (including *_a3m.ffdata, *_a3m.ffindex)
+# structure templates [81G] (including *_a3m.ffdata, *_a3m.ffindex)
 wget https://files.ipd.uw.edu/pub/RoseTTAFold/pdb100_2021Mar03.tar.gz
 tar xfz pdb100_2021Mar03.tar.gz
 ```
 
-8. Download BLAST
+8. Download BLAST [39M]
+
 ```
 wget https://ftp.ncbi.nlm.nih.gov/blast/executables/legacy.NOTSUPPORTED/2.2.26/blast-2.2.26-x64-linux.tar.gz
 mkdir -p blast-2.2.26
