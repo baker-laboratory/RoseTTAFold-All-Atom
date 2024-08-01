@@ -212,15 +212,19 @@ Specifying covalent modifications is slightly more complicated for the following
 - Forming new covalent bonds can create or remove chiral centers. Since RFAA specifies chirality at input, the network needs to be provided with chirality information. Under the hood, chiral centers are identified by a package called Openbabel which does not always agree with chemical intuition. 
 - Covalent modifications often have "leaving groups", or chemical groups that leave both the protein and the modification upon modification. 
 
-The way you input covalent bonds to RFAA is as a list of bonds between an atom on the protein and an atom on one of the input small molecules. This is the syntax for those bonds:
+The way you input covalent bonds to RFAA is as a comma-separared string of bonds between an atom on the protein and an atom on one of the input small molecules. This is the syntax for those bonds:
+```text
+'protein_chain,residue_number,atom_name:small_molecule_chain,atom_index:new_chirality_atom_1,new_chirality_atom_2'
 ```
-(protein_chain, residue_number, atom_name), (small_molecule_chain, atom_index), (new_chirality_atom_1, new_chirality_atom_2)
+for example:
+```text
+'A,74,ND2:B,1:CW,null'
 ```
 **Both the protein residue number and the atom_index are 1 indexed** (as you would normally count, as opposed to 0 indexed like many programming languages).
 
 In most cases, the chirality of the atoms will not change. This is what an input for a case where the chirality does not change looks like:
 ```
-(protein_chain, residue_number, atom_name), (small_molecule_chain, atom_index), ("null", "null")
+'A,74,ND2:B,1:null,null'
 ```
 The options for chirality are `CCW` and `CW` for counterclockwise and clockwise. The code will raise an Exception is there is a chiral center that Openbabel found that the user did not specify. Even if you believe Openbabel is wrong, the network likely received chirality information for those cases during training, so we expect that you will get the best results by specifying chirality at those positions.
 
@@ -245,23 +249,46 @@ sm_inputs:
     input: examples/small_molecule/7s69_glycan.sdf
     input_type: sdf
 
-covale_inputs: "[((\"A\", \"74\", \"ND2\"), (\"B\", \"1\"), (\"CW\", \"null\"))]"
+covale_inputs: "A,74,ND2:B,1:CW,null"
 
 loader_params:
   MAXCYCLE: 10
 ```
-**For covalently modified proteins, you must provide the input molecule as a sdf file**, since openbabel does not read smiles strings in a specific order. The syntax shown is identical to loading a protein and small molecule and then indicating a bond between them. In this case, hydra creates some problems because we have to escape the quotation marks using backslashes.
+**For covalently modified proteins, you must provide the input molecule as a sdf file**, since openbabel does not read smiles strings in a specific order. If you give RF2AA a covale_inputs string from command line, you must tell hydra that this is a string not a list (see: https://hydra.cc/docs/tutorials/structured_config/intro/) :
+```shell
+rf2aa_inference --config-name=base \
+    job_name=covalently_modified_7s69_A \
+    +protein_inputs.A.fasta_file=examples/protein/7s69_A.fasta \
+    +sm_inputs.B.input=examples/small_molecule/7s69_glycan.sdf \
+    +sm_inputs.B.input_type=sdf \
+    '+covale_inputs="A,74,ND2:B,1:CW,null"' \
+    output_path=examples/output/covalently_modified_7s69_A/
+```
+
 
 To clarify, this input:
 ```
-[(("A", "74", "ND2"), ("B", "1"), ("CW", "null"))]
+"A,74,ND2:B,1:CW,null"
 ```
-becomes this so it can be parsed correctly:
+will be parsed correctly as a tuple of `CovalentBond` instance representing covalent bond input:
+```python
+covalent_bonds: Tuple[CovalentBond] = (
+  CovalentBond(
+    protein_chain='A',
+    protein_residue_number=74,
+    protein_atom_name='ND2',
+    small_molecule_chain='B',
+    sm_atom_index=1,
+    new_chirality_atom_1='CW',
+    new_chirality_atom_2='null'
+  ),
+)
 ```
-"[((\"A\", \"74\", \"ND2\"), (\"B\", \"1\"), (\"CW\", \"null\"))]"
+For multiple bond input, use semicolons for separating from each other (not seriously tested):
+```text
+'A,74,ND2:B,1:CW,null;A,423,SG:B,1:null,null'
 ```
 
-We know this syntax is hard to work with and we are happy to review PRs if anyone in the community can figure out how to specify all the necessary requirements in a more user friendly way!
 
 <a id="outputs"></a>
 ### Understanding model outputs

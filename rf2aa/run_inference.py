@@ -17,6 +17,7 @@ from rf2aa.training.recycling import recycle_step_legacy
 from rf2aa.util import writepdb, is_atom, Ls_from_same_chain_2d
 from rf2aa.util_module import XYZConverter
 
+script_path=os.path.dirname(os.path.realpath(__file__))
 
 class ModelRunner:
 
@@ -200,7 +201,7 @@ class ModelRunner:
         return err_dict
 
 
-@hydra.main(version_base=None, config_path='config/inference')
+@hydra.main(version_base=None, config_path=os.path.join(script_path,'config','inference'))
 def main(config):
     runner = ModelRunner(config)
     runner.infer()
