@@ -247,7 +247,7 @@ def standardize_dihedral_retain_first(a,b,c,d):
     isomorphisms = [(a,b,c,d), (a,c,b,d)]
     return sorted(isomorphisms)[0]
 
-def get_chirals(obmol, xyz):
+def get_chirals(obmol, xyz, fix_input_conformer=False):
     '''
     get all quadruples of atoms forming chiral centers and the expected ideal pseudodihedral between them
     '''
@@ -261,9 +261,9 @@ def get_chirals(obmol, xyz):
         config = si.GetConfig()
 
         o = config.center
-        c = config.from_or_towards
+        c_ = config.from_or_towards
         i,j,k = list(config.refs)
-        for a, b, c in permutations((c,i,j,k), 3):
+        for a, b, c in permutations((c_,i,j,k), 3):
             chiral_idx_set.add(standardize_dihedral_retain_first(o,a,b,c))
 
     chiral_idx = list(chiral_idx_set)
@@ -275,9 +275,64 @@ def get_chirals(obmol, xyz):
         return torch.zeros((0,5))
 
     dih = get_dih(*xyz[chiral_idx.long()].split(split_size=1,dim=1))[:,0]
+
     chirals = torch.nn.functional.pad(chiral_idx, (0, 1), mode='constant', value=angle)
     chirals[dih<0.0,-1] *= -1
+
+    if fix_input_conformer:
+        chirals[:, -1] = dih
+
     return chirals
+
+# def get_chirals(obmol, xyz):
+#     '''
+#     get all quadruples of atoms forming chiral centers and the expected ideal pseudodihedral between them
+#     '''
+#     for atom in openbabel.OBMolAtomIter(obmol):
+#         print(f"Atom {atom.GetIdx()}: ID = {atom.GetId()}")
+
+#     stereo = openbabel.OBStereoFacade(obmol)
+#     angle = np.arcsin(1/3**0.5)
+#     chiral_idx_set = set()
+#     for i in range(obmol.NumAtoms()):
+#         if not stereo.HasTetrahedralStereo(i):
+#             continue
+#         print('Atom', i, 'is chiral')
+#         si = stereo.GetTetrahedralStereo(i)
+#         config = si.GetConfig()
+
+#         o = config.center
+#         print("Is the configuration specified? {}".format("Yes" if config.specified else "No"))
+#         print("Looking from atom Id {0}, the atoms Ids {1} are arranged clockwise".format(config.from_or_towards, config.refs))
+#         if config.specified:
+#             chiral_idx_set.add(tuple([o] + list(config.refs)))
+#         else:
+#             c_ = config.from_or_towards
+#             i,j,k = list(config.refs)
+#             chiral_idx_set.add(tuple([o] + sorted([c_,i,j,k])[:-1]))
+#             # for a, b, c in permutations((c_,i,j,k), 3):
+#             #     chiral_idx_set.add((o,a,b,c))
+
+#     chiral_idx = list(chiral_idx_set)
+#     chiral_idx.sort()
+#     print('Chiral idx')
+#     print(chiral_idx)
+#     chiral_idx = torch.tensor(chiral_idx, dtype=torch.float32)
+#     chiral_idx = chiral_idx[(chiral_idx<obmol.NumAtoms()).all(dim=-1)]
+
+#     print('Chiral idx2')
+#     print(chiral_idx)
+
+#     if chiral_idx.numel() == 0:
+#         return torch.zeros((0,5))
+
+#     dih = get_dih(*xyz[chiral_idx.long()].split(split_size=1,dim=1))[:,0]
+#     chirals = torch.nn.functional.pad(chiral_idx, (0, 1), mode='constant', value=angle)
+#     chirals[dih<0.0,-1] *= -1
+
+#     print('Chirals')
+#     print(chirals)
+#     return chirals
 
 def get_atomize_protein_chirals(residues_atomize, lig_xyz, residue_atomize_mask, bond_feats):
     """

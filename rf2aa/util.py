@@ -201,13 +201,14 @@ def xyz_to_frame_xyz(xyz, seq_unmasked, atom_frames):
     xyz_frame[atoms, :, :3] = atom_crds.reshape(atom_L*natoms, 3)[frames_reindex]
     return xyz_frame
 
-def xyz_frame_from_rotation_mask(xyz,rotation_mask, atom_frames):
+def xyz_frame_from_rotation_mask(xyz, rotation_mask, atom_frames):
     """
     function to get xyz_frame for l1 feature in Structure module
     xyz (1, L, natoms, 3)
     rotation_mask (1, L)
     atom_frames (1, L, 3, 2)
     """
+
     xyz_frame = xyz.clone()
     if torch.all(~rotation_mask):
         return xyz_frame

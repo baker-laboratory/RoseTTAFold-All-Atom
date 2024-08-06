@@ -52,7 +52,7 @@ class LJLoss(torch.autograd.Function):
         eps=1e-8, training=True
     ):
         N, L, A = xs.shape[:3]
-        assert (N==1) # see comment below
+        # assert (N==1) # see comment below
 
         ds_res = torch.sqrt( torch.sum ( torch.square( 
             xs.detach()[:,:,None,1,:]-xs.detach()[:,None,:,1,:]), dim=-1 ))
@@ -198,6 +198,7 @@ def calc_chiral_loss(pred, chirals):
     """
     if chirals.shape[1] == 0:
         return torch.tensor(0.0, device=pred.device)
+
     chiral_dih = pred[:, chirals[..., :-1].long(), 1]
     pred_dih = get_dih(chiral_dih[...,0, :], chiral_dih[...,1, :], chiral_dih[...,2, :], chiral_dih[...,3, :]) # n_symm, b, n, 36, 3
     l = torch.square(pred_dih-chirals[...,-1]).mean()

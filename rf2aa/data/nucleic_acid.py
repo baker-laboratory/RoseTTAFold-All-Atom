@@ -19,19 +19,25 @@ def load_nucleic_acid(fasta_fn, input_type, model_runner):
     loader_params = model_runner.config.loader_params
     msa, ins, L = parse_multichain_fasta(fasta_fn, rna_alphabet=rna_alphabet, dna_alphabet=dna_alphabet)
     if (msa.shape[0] > loader_params["MAXSEQ"]):
-        idxs_tokeep = np.random.permutation(msa.shape[0])[:loader_params["MAXSEQ"]]
+        idx_ = max(1, loader_params["MAXSEQ"])
+        # idxs_tokeep = np.random.permutation(msa.shape[0])[:loader_params["MAXSEQ"]]
+        idxs_tokeep = np.random.permutation(msa.shape[0])[:idx_]
         idxs_tokeep[0] = 0
         msa = msa[idxs_tokeep]
         ins = ins[idxs_tokeep]
     if len(L) > 1:
         raise ValueError("Please provide separate fasta files for each nucleic acid chain")
     L = L[0]
-    xyz_t, t1d, mask_t, _ = blank_template(loader_params["n_templ"], L)
+    num_templ = max(1, loader_params["n_templ"])
+    # xyz_t, t1d, mask_t, _ = blank_template(loader_params["n_templ"], L)
+    xyz_t, t1d, mask_t, _ = blank_template(num_templ, L)
+
 
 
     bond_feats = get_protein_bond_feats(L)
     chirals = torch.zeros(0, 5)
     atom_frames = torch.zeros(0, 3, 2)
+    print('na xyz_t shape', xyz_t.shape)
     
     return RawInputData(
         torch.from_numpy(msa),

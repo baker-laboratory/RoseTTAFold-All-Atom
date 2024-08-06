@@ -4,10 +4,11 @@ import torch.nn as nn
 import numpy as np
 
 from contextlib import ExitStack
+from tqdm import tqdm
 
 from rf2aa.chemical import ChemicalData as ChemData
 
-def recycle_step_legacy(ddp_model, input, n_cycle, use_amp, nograds=False, force_device=None):
+def recycle_step_legacy(ddp_model, input, n_cycle, use_amp, fix_input_conformer=False, nograds=False, force_device=None, n_copies=1, enable_pbar=False):
     if force_device is not None:
         gpu = force_device
     else:
@@ -16,7 +17,7 @@ def recycle_step_legacy(ddp_model, input, n_cycle, use_amp, nograds=False, force
     xyz_prev, alpha_prev, mask_recycle = \
         input["xyz_prev"], input["alpha_prev"], input["mask_recycle"]
     output_i = (None, None, xyz_prev, alpha_prev, mask_recycle)
-    for i_cycle in range(n_cycle):
+    for i_cycle in tqdm(range(n_cycle), total=n_cycle, disable=not enable_pbar, desc="Recycling..."):
         with ExitStack() as stack:
             stack.enter_context(torch.cuda.amp.autocast(enabled=use_amp))
             if i_cycle < n_cycle -1 or nograds is True:
@@ -26,7 +27,7 @@ def recycle_step_legacy(ddp_model, input, n_cycle, use_amp, nograds=False, force
             return_raw = (i_cycle < n_cycle -1)
             use_checkpoint = not nograds and (i_cycle == n_cycle -1)
 
-            input_i = add_recycle_inputs(input, output_i, i_cycle, gpu, return_raw=return_raw, use_checkpoint=use_checkpoint)
+            input_i = add_recycle_inputs(input, output_i, i_cycle, gpu, fix_input_conformer=fix_input_conformer, return_raw=return_raw, use_checkpoint=use_checkpoint, n_copies=n_copies)
             output_i = ddp_model(**input_i)
     return output_i
 
@@ -46,7 +47,8 @@ def run_model_forward_legacy(model, network_input, device="cpu"):
 
     return output_i
 
-def add_recycle_inputs(network_input, output_i, i_cycle, gpu, return_raw=False, use_checkpoint=False):
+
+def add_recycle_inputs(network_input, output_i, i_cycle, gpu, fix_input_conformer=False, return_raw=False, use_checkpoint=False, n_copies=1):
     input_i = {}
     for key in network_input:
         if key in ['msa_latent', 'msa_full', 'seq']:
@@ -56,8 +58,9 @@ def add_recycle_inputs(network_input, output_i, i_cycle, gpu, return_raw=False, 
 
     L = input_i["msa_latent"].shape[2]
     msa_prev, pair_prev, _, alpha, mask_recycle = output_i
-    xyz_prev = ChemData().INIT_CRDS.reshape(1,1,ChemData().NTOTAL,3).repeat(1,L,1,1).to(gpu, non_blocking=True)
+    xyz_prev = ChemData().INIT_CRDS.reshape(1, 1, ChemData().NTOTAL, 3).repeat(n_copies, L, 1, 1).to(gpu, non_blocking=True)
 
+    input_i['fix_input_conformer'] = fix_input_conformer
     input_i['msa_prev'] = msa_prev
     input_i['pair_prev'] = pair_prev
     input_i['xyz'] = xyz_prev

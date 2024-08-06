@@ -51,7 +51,7 @@ class RawInputData:
     
     def update_protein_features_after_atomize(self, residues_to_atomize):
         if self.chain_lengths is None:
-            raise("Cannot update protein features without chain_lengths. \
+            raise ValueError("Cannot update protein features without chain_lengths. \
                   merge_inputs must be called before this function")
         chain_bins = self.get_chain_bins_from_chain_lengths()
         keep = torch.ones(self.length())

@@ -530,11 +530,21 @@ class Str2Str(nn.Module):
             G, edge_feats = make_full_graph(xyz[:,:,1,:], edge, idx)
 
         if use_atom_frames: # ligand l1 features are vectors to neighboring atoms
-            xyz_frame = xyz_frame_from_rotation_mask(xyz, rotation_mask, atom_frames)
+            xyz_frame_list = []
+            for b in range(B):
+                xyz_frame_list.append(xyz_frame_from_rotation_mask(xyz[b].unsqueeze(0), rotation_mask[b].unsqueeze(0), atom_frames[b].unsqueeze(0)))
+            xyz_frame = torch.cat(xyz_frame_list, dim=0)
             l1_feats = xyz_frame - xyz_frame[:,:,1,:].unsqueeze(2)
         else: # old (incorrect) behavior: vectors to random initial coords of virtual N and C
             l1_feats = xyz - xyz[:,:,1,:].unsqueeze(2)
         l1_feats = l1_feats.reshape(B*L, -1, 3)
+
+        # BEN
+        if extra_l1 is not None:
+            if extra_l1.ndim == 3:
+                extra_l1 = extra_l1.unsqueeze(0).expand(B, -1, -1, -1).reshape(B*L, -1, 3)
+            else:
+                extra_l1 = extra_l1.reshape(B*L, -1, 3)
 
         if extra_l1 is not None:
             l1_feats = torch.cat( (l1_feats,extra_l1), dim=1 )
@@ -1153,28 +1163,48 @@ class IterativeSimulator(nn.Module):
             with ExitStack() as stack:
                 if (backprop != i_m).all():
                     stack.enter_context(torch.no_grad())
-                
-                extra_l0 = None
-                extra_l1 = []
 
-                if self.use_lj_l1:
-                    dljdxyz, dljdalpha = calc_lj_grads(
-                         seq_unmasked, xyz.detach(), alpha.detach(), 
-                         self.xyzconverter.compute_all_atom, 
-                         bond_feats, dist_matrix, 
-                         self.aamask, 
-                         self.ljlk_parameters, 
-                         self.lj_correction_parameters, 
-                         self.num_bonds, 
-                         lj_lin=self.lj_lin)
-                    extra_l0 = dljdalpha.reshape(1,-1,2*ChemData().NTOTALDOFS).detach()
-                    extra_l1.append(dljdxyz[0].detach())
+                all_extra_l0 = []
+                all_extra_l1 = []
+                # BEN: Added loop over B.
+                for ibb in range(B):
+                    extra_l0 = None
+                    extra_l1 = []
 
-                if self.use_chiral_l1:
-                    dchiraldxyz, = calc_chiral_grads(xyz.detach(),chirals)
-                    #extra_l1 = torch.cat((dljdxyz[0].detach(), dchiraldxyz[0].detach()), dim=1)
-                    extra_l1.append(dchiraldxyz[0].detach())
-                extra_l1 = torch.cat(extra_l1, dim=1)
+                    if self.use_lj_l1:
+                            b_dljdxyz, b_dljdalpha = calc_lj_grads(
+                                seq_unmasked[ibb, None], xyz[ibb, None].detach(), alpha[ibb, None].detach(),
+                                self.xyzconverter.compute_all_atom,
+                                bond_feats[ibb, None], dist_matrix[ibb, None],
+                                self.aamask, 
+                                self.ljlk_parameters, 
+                                self.lj_correction_parameters, 
+                                self.num_bonds, 
+                                lj_lin=self.lj_lin
+                            )
+
+                            # dljdxyz, dljdalpha = calc_lj_grads(
+                            #      seq_unmasked, xyz.detach(), alpha.detach(), 
+                            #      self.xyzconverter.compute_all_atom, 
+                            #      bond_feats, dist_matrix, 
+                            #      self.aamask, 
+                            #      self.ljlk_parameters, 
+                            #      self.lj_correction_parameters, 
+                            #      self.num_bonds, 
+                            #      lj_lin=self.lj_lin)
+
+                            extra_l0 = b_dljdalpha.reshape(1,-1,2*ChemData().NTOTALDOFS).detach()
+                            extra_l1.append(b_dljdxyz[0].detach())
+
+                    if self.use_chiral_l1:
+                        dchiraldxyz, = calc_chiral_grads(xyz[ibb, None].detach(), chirals[ibb, None])
+                        #extra_l1 = torch.cat((dljdxyz[0].detach(), dchiraldxyz[0].detach()), dim=1)
+                        extra_l1.append(dchiraldxyz[0].detach())
+                    extra_l1 = torch.cat(extra_l1, dim=1)
+                    all_extra_l1.append(extra_l1.unsqueeze(0))
+                    all_extra_l0.append(extra_l0)
+                extra_l1 = torch.cat(all_extra_l1, dim=0)
+                extra_l0 = torch.cat(all_extra_l0, dim=0)
 
                 xyz, state, alpha, quat = self.str_refiner(
                     msa.float(), pair.float(), xyz.detach().float(), state.float(), idx,

@@ -2066,7 +2066,6 @@ class ChemicalData:
             ]
 
         if params.get("use_cif_ordering_for_trp", False):
-            print("Using the cif atom ordering for TRP.")
             self.aa2long[17] = (" N  "," CA "," C  "," O  "," CB "," CG "," CD1"," CD2"," NE1"," CE2"," CE3"," CZ2"," CZ3"," CH2",  None,  None,  None,  None,  None,  None,  None,  None,  None," H  "," HA ","1HB ","2HB ","1HD ","1HE "," HZ2"," HH2"," HZ3"," HE3",  None,  None,  None)
                 
         self.aabonds=[

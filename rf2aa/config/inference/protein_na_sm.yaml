@@ -1,6 +1,15 @@
 defaults:
   - base
 
+output_path: outputs/2024-03-15/7u7w/
+
+database_params:
+  sequencedb: "/scratch/databases/rfaa"
+  hhdb: "/scratch/databases/rfaa/pdb100_2021Mar03/pdb100_2021Mar03"
+  command: make_msa.sh
+  num_cpus: 4
+  mem: 32
+
 job_name: "7u7w_protein_nucleic_sm"
 protein_inputs: 
   A: 

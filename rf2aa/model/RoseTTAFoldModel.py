@@ -73,7 +73,7 @@ class RoseTTAFoldModule(nn.Module):
         freeze_track_motif=False,
         assert_single_sequence_input=False,
         fit=False,
-        tscale=1.0
+        tscale=1.0,
     ):
         super(RoseTTAFoldModule, self).__init__()
         self.freeze_track_motif = freeze_track_motif
@@ -184,6 +184,7 @@ class RoseTTAFoldModule(nn.Module):
         return_infer=False, #fd ?
         p2p_crop=-1, topk_crop=-1,   # striping
         symmids=None, symmsub=None, symmRs=None, symmmeta=None,  # symmetry
+        fix_input_conformer=False,
     ):
         # ic(get_shape(msa_latent))
         # ic(get_shape(msa_full))
@@ -363,6 +364,26 @@ class RoseTTAFoldModule(nn.Module):
         # add template embedding
         pair, state = self.templ_emb(t1d, t2d, alpha_t, xyz_t, mask_t, pair, state, use_checkpoint=use_checkpoint, p2p_crop=p2p_crop)
 
+        # print('shape of sequence:', seq.shape)
+        # if fix_input_conformer:
+        #     self.freeze_track_motif = True
+        #     is_sm = rf2aa.util.is_atom(seq[0])  # (L)
+        #     #is_protein_motif = is_motif & ~is_sm
+        #     #if is_motif.any():
+        #     #    motif_protein_i = torch.where(is_motif)[0][0]
+        #     is_motif = is_sm
+        #     print('is_motif:', is_motif)
+        #     # if is_sm.any():
+        #     #    motif_sm_i = torch.where(is_motif_sm)[0][0]
+
+        #     print('shape of xyz:', xyz.shape)
+        #     print('xyz sm')
+        #     a = xyz[:, is_motif, :, :].reshape(-1,3)
+        #     # remove nan from a
+        #     a = a[~torch.isnan(a).any(axis=1)]
+        #     print(a)
+
+
         # Predict coordinates from given inputs
         is_motif = is_motif if self.freeze_track_motif else torch.zeros_like(seq).bool()[0]
         msa, pair, xyz, alpha_s, xyz_allatom, state, symmsub, quat = self.simulator(
@@ -372,6 +393,11 @@ class RoseTTAFoldModule(nn.Module):
             use_checkpoint=use_checkpoint, use_atom_frames=self.use_atom_frames, 
             p2p_crop=p2p_crop, topk_crop=topk_crop
         )
+
+        # if fix_input_conformer:
+        #     print('shape of xyz_allatom:', xyz_allatom.shape)
+        #     print('xyz_allatom sm')
+        #     print(xyz_allatom[:, is_motif, :, :])
 
         if return_raw:
             # get last structure

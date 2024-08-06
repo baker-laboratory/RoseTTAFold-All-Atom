@@ -42,11 +42,13 @@ def merge_protein_inputs(protein_inputs, deterministic: bool = False):
         unique_lengths_list = [value for index, value in enumerate(lengths_list) if index in unique_indices]
 
         if len(unique_a3m) >1:
+            print('unique_a3m', unique_a3m)
             a3m_out = unique_a3m[0]
             for i in range(1, len(unique_a3m)):
                 a3m_out = join_msas_by_taxid(a3m_out, a3m_list[i])
             a3m_out = expand_multi_msa(a3m_out, unique_hashes, hash_list, unique_lengths_list, lengths_list)
         else:
+            print('only 1 unique a3m')
             a3m  = unique_a3m[0]
             msa, ins = a3m["msa"], a3m["ins"]
             a3m_out = merge_a3m_homo(msa, ins, len(hash_list))

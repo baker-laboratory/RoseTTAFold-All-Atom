@@ -24,8 +24,9 @@ class ModelRunner:
         self.config = config
         initialize_chemdata(self.config.chem_params)
         FFindexDB = namedtuple("FFindexDB", "index, data")
-        self.ffdb = FFindexDB(read_index(config.database_params.hhdb+'_pdb.ffindex'),
-                              read_data(config.database_params.hhdb+'_pdb.ffdata'))
+        if config.database_params.hhdb is not None:
+            self.ffdb = FFindexDB(read_index(config.database_params.hhdb+'_pdb.ffindex'),
+                                read_data(config.database_params.hhdb+'_pdb.ffdata'))
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.xyz_converter = XYZConverter()
         self.deterministic = config.get("deterministic", False)
@@ -70,6 +71,7 @@ class ModelRunner:
             sm_inputs.update(covalent_sm_inputs)
             residues_to_atomize.extend(residues_to_atomize_covale)
             
+        fix_input_conformer = False
         if self.config.sm_inputs is not None:
             for chain in self.config.sm_inputs:
                 if self.config.sm_inputs[chain]["input_type"] not in ["smiles", "sdf"]:
@@ -78,12 +80,42 @@ class ModelRunner:
                     continue
                 if "is_leaving" in self.config.sm_inputs[chain]:
                     raise ValueError("Leaving atoms are not supported for non-covalently bonded molecules")
-                sm_input = load_small_molecule(
-                   self.config.sm_inputs[chain]["input"],
-                   self.config.sm_inputs[chain]["input_type"],
-                   self
-                )
+                if "fix_input_conformer" in self.config.sm_inputs[chain] and "keep_H" in self.config.sm_inputs[chain]:
+                    print("Fixing conformer and keeping H atoms of ligand")
+                    sm_input = load_small_molecule(
+                        self.config.sm_inputs[chain]["input"],
+                        self.config.sm_inputs[chain]["input_type"],
+                        self,
+                        fix_input_conformer=self.config.sm_inputs[chain]["fix_input_conformer"],
+                        remove_H=not self.config.sm_inputs[chain]["keep_H"]
+                    )
+                    fix_input_conformer = True
+                elif "fix_input_conformer" in self.config.sm_inputs[chain]:
+                    print("Fixing conformer of ligand")
+                    sm_input = load_small_molecule(
+                        self.config.sm_inputs[chain]["input"],
+                        self.config.sm_inputs[chain]["input_type"],
+                        self,
+                        fix_input_conformer=self.config.sm_inputs[chain]["fix_input_conformer"]
+                    )
+                    fix_input_conformer = True
+                elif "keep_H" in self.config.sm_inputs[chain]:
+                    print("Keeping H atoms of ligand")
+                    sm_input = load_small_molecule(
+                        self.config.sm_inputs[chain]["input"],
+                        self.config.sm_inputs[chain]["input_type"],
+                        self,
+                        remove_H=not self.config.sm_inputs[chain]["keep_H"]
+                    )
+                else:
+                    sm_input = load_small_molecule(
+                    self.config.sm_inputs[chain]["input"],
+                    self.config.sm_inputs[chain]["input_type"],
+                    self
+                    )
                 sm_inputs[chain] = sm_input
+                print('sm_input xyz_t shape', sm_input.xyz_t.shape)
+
 
         if self.config.residue_replacement is not None:
             # add to the sm_inputs list
@@ -94,6 +126,9 @@ class ModelRunner:
         self.raw_data = raw_data
 
     def load_model(self):
+        print('##########################################')
+        print(self.config.legacy_model_param)
+        print('##########################################')
         self.model = RoseTTAFoldModule(
             **self.config.legacy_model_param,
             aamask = ChemData().allatom_mask.to(self.device),
@@ -104,7 +139,6 @@ class ModelRunner:
             cb_len = ChemData().cb_length_t.to(self.device),
             cb_ang = ChemData().cb_angle_t.to(self.device),
             cb_tor = ChemData().cb_torsion_t.to(self.device),
-
         ).to(self.device)
         checkpoint = torch.load(self.config.checkpoint_path, map_location=self.device)
         self.model.load_state_dict(checkpoint['model_state_dict'])
@@ -112,17 +146,24 @@ class ModelRunner:
     def construct_features(self):
         return self.raw_data.construct_features(self)
 
-    def run_model_forward(self, input_feats):
+    def run_model_forward(self, input_feats, fix_input_conformer=False):
         input_feats.add_batch_dim()
         input_feats.to(self.device)
         input_dict = asdict(input_feats)
         input_dict["bond_feats"] = input_dict["bond_feats"].long()
         input_dict["seq_unmasked"] = input_dict["seq_unmasked"].long()
+        if self.config.sm_inputs is not None:
+            for chain, d in self.config.sm_inputs.items():
+                if "fix_input_conformer" in d:
+                    if d["fix_input_conformer"]:
+                        fix_input_conformer = d["fix_input_conformer"]
+                        print('Fixing input conformer during run model')
         outputs = recycle_step_legacy(self.model, 
                                      input_dict, 
                                      self.config.loader_params.MAXCYCLE, 
                                      use_amp=False,
                                      nograds=True,
+                                     fix_input_conformer=fix_input_conformer,
                                      force_device=self.device)
         return outputs
 
@@ -138,15 +179,11 @@ class ModelRunner:
         plddts = err_dict["plddts"]
         Ls = Ls_from_same_chain_2d(input_feats.same_chain)
         plddts = plddts[0]
-        writepdb(os.path.join(f"{self.config.output_path}", f"{self.config.job_name}.pdb"), 
-                 xyz_allatom, 
-                 seq_unmasked, 
-                 bond_feats=bond_feats,
-                 bfacts=plddts,
-                 chain_Ls=Ls
-                 )
-        torch.save(err_dict, os.path.join(f"{self.config.output_path}", 
-                                          f"{self.config.job_name}_aux.pt"))
+        writepdb(
+            os.path.join(f"{self.config.output_path}", f"{self.config.job_name}.pdb"), xyz_allatom, seq_unmasked, 
+            bond_feats=bond_feats, bfacts=plddts, chain_Ls=Ls
+        )
+        torch.save(err_dict, os.path.join(f"{self.config.output_path}", f"{self.config.job_name}_aux.pt"))
 
     def infer(self):
         self.load_model()
@@ -202,6 +239,14 @@ class ModelRunner:
 
 @hydra.main(version_base=None, config_path='config/inference')
 def main(config):
+    if torch.cuda.is_available():
+        device_name = torch.cuda.get_device_name(torch.cuda.current_device())
+        print(f"Found GPU with device_name {device_name}. Will run RFAA on {device_name}")
+    else:
+        print("////////////////////////////////////////////////")
+        print("///// NO GPU DETECTED! Falling back to CPU /////")
+        print("////////////////////////////////////////////////")
+
     runner = ModelRunner(config)
     runner.infer()
 

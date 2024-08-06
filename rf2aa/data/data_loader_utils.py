@@ -455,7 +455,9 @@ def merge_a3m_homo(msa_orig, ins_orig, nmer, mode="default"):
              ins[N:, start:start+L] = ins_orig[1:]
              start += L        
 
-     return msa, ins
+    #  return msa, ins
+     a3m = {'msa': msa, 'ins': ins}
+     return a3m
 
 def merge_msas(a3m_list, L_s):
     """

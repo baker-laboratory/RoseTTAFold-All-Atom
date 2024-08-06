@@ -53,13 +53,29 @@ def get_templates(
 
 
 def load_protein(msa_file, hhr_fn, atab_fn, model_runner):
-    msa, ins, taxIDs = parse_a3m(msa_file)
+    # print(model_runner.config)
+    if model_runner.config.loader_params.MAXSEQ == 0:
+        print('hacking single chain single sequence')
+        print('model_runner.config:')
+        print(model_runner.config)
+        print('model_runner:')
+        for key, val in model_runner.__dict__.items():
+            print(key)
+            if key == 'ffdb':
+                print('\t', val)
+        chid = list(model_runner.config.protein_inputs.keys())[0]
+        path_ = model_runner.config.protein_inputs[chid]["fasta_file"]
+        msa, ins, taxIDs = parse_a3m(path_)
+    else:
+        msa, ins, taxIDs = parse_a3m(msa_file)
     # NOTE: this next line is a bug, but is the way that
     # the code is written in the original implementation!
     ins[0] = msa[0]
 
+    print('protein msa shape', msa.shape)
+
     L = msa.shape[1]
-    if hhr_fn is None or atab_fn is None:
+    if hhr_fn is None or atab_fn is None or model_runner.config.loader_params.n_templ == 0:
         print("No templates provided")
         xyz_t, t1d, mask_t, _ = blank_template(1, L)
     else:
@@ -76,6 +92,8 @@ def load_protein(msa_file, hhr_fn, atab_fn, model_runner):
     bond_feats = get_protein_bond_feats(L)
     chirals = torch.zeros(0, 5)
     atom_frames = torch.zeros(0, 3, 2)
+
+    print('protein xyz_t shape', xyz_t.shape)
     return RawInputData(
         torch.from_numpy(msa),
         torch.from_numpy(ins),
