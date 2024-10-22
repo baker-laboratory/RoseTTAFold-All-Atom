@@ -8,16 +8,23 @@ out_dir="$2"
 CPU="$3"
 MEM="$4"
 
+# directory with the databases
+SEARCH_BASE="$5"
+
 # template database
-DB_TEMPL="$5"
+DB_TEMPL="$6"
 
 # current script directory (i.e., pipe directory)
 SCRIPT=`realpath -s $0`
 export PIPE_DIR=`dirname $SCRIPT`
 
+if [ -z "$SEARCH_BASE" ]; then
+    SEARCH_BASE=$PIPE_DIR
+fi
+
 # sequence databases
-DB_UR30="$PIPE_DIR/UniRef30_2020_06/UniRef30_2020_06"
-DB_BFD="$PIPE_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
+DB_UR30="$SEARCH_BASE/UniRef30_2020_06/UniRef30_2020_06"
+DB_BFD="$SEARCH_BASE/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"
 
 # Running signalP 6.0
 mkdir -p $out_dir/signalp
