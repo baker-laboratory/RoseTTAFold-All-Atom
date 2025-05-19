@@ -1,0 +1,51 @@
+# Config for sampling symmetric assemblies.
+
+defaults:
+  - _self_
+
+sym:
+  # Symmetry to sample
+  # Available symmetries:
+  # - Cyclic symmetry (C_n) # call as C5
+  # - Dihedral symmetry (D_n) # call as D5
+  # - Tetrahedral symmetry # call as T
+  # - Octahedral symmetry # call as O
+  # - Icosahedral symmetry # call as I
+  kind: null # defaults to rf_diffusion_default
+  symid: C1 # default to no symmetry
+  max_nsub: 5
+  sym_enabled: True
+  rfsym_enabled: True
+  sympair_enabled: True
+  sympair_protein_only: True
+  # sym_enabled: 'diffuse:[[0,0.5]]' # only use sym on first half of runs
+
+  Lasu_prot: null
+  Lasu_ligand: null
+  ligand_is_symmetric: True
+  contig_is_symmetric: False
+
+  # Symmetry options
+  # recenter: True
+  start_radius: null
+  force_radius: null
+  asu_to_best_frame: null
+  fit: False
+  fit_tscale: 1.0
+  fit_wclash: 4.0
+  recenter_particle: False
+
+
+
+
+  # repeat stuff
+  symmetrize_repeats: False
+  n_repeats: null
+  repeat_length: null
+  symmsub_k: null
+  sympair_method: mean
+  copy_main_block_template: null
+  main_block: null
+  pre_symm_permutation: null
+  pseudo_cycle: null
+

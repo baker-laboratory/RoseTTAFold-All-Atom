@@ -1,0 +1,31 @@
+{
+	"folders":
+	[
+		{
+			"path": "../..",
+			"folder_include_patterns": ["rf2aa"],
+			"folder_exclude_patterns": ["ipd"],
+		}
+	],
+
+
+	"build_systems":
+	[
+		{
+			"name": "pytest rf2aa",
+			"shell_cmd" : "cd $folder/rf2aa; PYTHONPATH=.. pytest -x -s --benchmark-skip tests/test_model.py   &> $folder/sublime_build.log"
+		},
+		{
+			"name": "test_sym_manager",
+			"shell_cmd" : "cd $folder/rf2aa;   PYTHONPATH=.. python tests/sym/test_sym_manager.py &> $folder/sublime_build.log"
+		},
+		{
+			"name": "test_dynparams",
+			"shell_cmd" : "cd $folder/rf2aa;   PYTHONPATH=.. python tests/tools/test_dynamic_parameters.py &> $folder/sublime_build.log"
+		},
+		{
+			"name": "runtests.py",
+			"shell_cmd": "cd $folder/rf_diffusion; PYTHONPATH=../.. python ../ide/runtests.py $file &> ../sublime_build.log"
+		}
+	]
+}

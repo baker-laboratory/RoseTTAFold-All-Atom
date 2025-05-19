@@ -1,0 +1,98 @@
+[project]
+name = 'rf2aa'
+version = "2024.11.22"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+# addopts = "-ra -q"
+addopts = '--disable-warnings -q -m "not ci"'
+testpaths = [
+    "rf2aa/tests",
+    "ipd",
+]
+markers = [
+    'slow: marks tests as slow (deselect with -m "not slow")',
+    'fast: tests that run in a second or two',
+    'noparallel: tests teat cant run in parallel',
+    "ci: tests that should only run in ci",
+]
+
+
+[tool.yapf]
+based_on_style = "pep8"
+indent_width = 4
+column_limit = 123
+blank_line_before_nested_class_or_def = false
+blank_lines_around_top_level_definition = 1
+arithmetic_precedence_indication = true
+
+[tool.pyright]
+include = [ "rf2aa", "lib/ipd/ipd"]
+exclude = [
+    "**/__pycache__",
+]
+defineConstant = { DEBUG = true }
+typeCheckingMode = "standard"
+reportMissingImports = true
+reportMissingTypeStubs = false
+pythonPlatform = "Linux"
+requires-python = ">=3.11"
+pythonVersion = "3.12"
+executionEnvironments = [
+  { root = "/home/sheffler/sw/MambaForge/envs/pyright/bin/python", pythonVersion = "3.12", pythonPlatform = "Linux", extraPaths = [] },
+]
+
+[tool.ruff]
+lint.ignore = [
+   'E731', #  [ ] Do not assign a `lambda` expression, use a `def`
+   'E402', #  [ ] Module level import not at top of file
+   'E741', #  [ ] Ambiguous variable name: `I`
+   'E701', #  [ ] Multiple statements on one line (colon)
+   'F403', #  [ ] `from Attention_module import *` used; unable to detect undefined names
+   'F405',
+   'F821',
+   'F841',
+
+]
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?)|ic)$"
+line-length = 123
+target-version = "py39"
+format.quote-style = "single"
+format.indent-style = "space"
+format.docstring-code-format = true
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "images",
+    "lib",
+    "openfold",
+    "pymol_config",
+    "README.md",
+    "SE3Transformer",
+    "archived",
+]
