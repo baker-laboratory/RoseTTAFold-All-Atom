@@ -32,7 +32,9 @@ def get_dislf(seq, xyz, mask):
 def read_template_pdb(L, pdb_fn, target_chain=None):
     # get full sequence from given PDB
     seq_full = list()
+    L_s = list()
     prev_chain=''
+    offset = 0
     with open(pdb_fn) as fp:
         for line in fp:
             if line[:4] != "ATOM":
@@ -118,8 +120,7 @@ def read_multichain_pdb(pdb_fn, tmpl_chain=None, tmpl_conf=0.1):
         for line in fp:
             if line[:4] != "ATOM":
                 continue
-                outbatch = 0
-            
+
             resNo, atom, aa = int(line[22:26]), line[12:16], line[17:20]
             aa_idx = ChemData().aa2num[aa] if aa in ChemData().aa2num.keys() else 20
 
@@ -142,7 +143,7 @@ def read_multichain_pdb(pdb_fn, tmpl_chain=None, tmpl_conf=0.1):
     dslf = get_dislf(seq[0], xyz[0], mask[0])
 
     # assign confidence 'CONF' to all residues with backbone in template
-    conf = torch.where(mask_t[...,:3].all(dim=-1)[...,None], torch.full((1,L,1),tmpl_conf), torch.zeros(L,1)).float()
+    conf = torch.where(mask_t[...,:3].all(dim=-1)[...,None], torch.full((1,L,1),tmpl_conf), torch.zeros(1,L,1)).float()
 
     seq_1hot = torch.nn.functional.one_hot(seq, num_classes=ChemData().NAATOKENS-1).float()
     t1d = torch.cat((seq_1hot, conf), -1)

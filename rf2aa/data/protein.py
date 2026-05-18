@@ -54,9 +54,6 @@ def get_templates(
 
 def load_protein(msa_file, hhr_fn, atab_fn, model_runner):
     msa, ins, taxIDs = parse_a3m(msa_file)
-    # NOTE: this next line is a bug, but is the way that
-    # the code is written in the original implementation!
-    ins[0] = msa[0]
 
     L = msa.shape[1]
     if hhr_fn is None or atab_fn is None:
