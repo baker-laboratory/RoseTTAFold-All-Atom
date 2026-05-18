@@ -777,7 +777,7 @@ def update_symm_Rs(xyz, Lasu, symmsub, symmRs, fit=False, tscale=1.0):
 
         # distance map loss
         Xsymm = torch.einsum('sij,brj->bsri', symmRs[symmsub], Tcorr).reshape(B,-1,3)
-        Xtrue = Ts
+        Xtrue = xyz
 
         delsx = Xsymm[:,:Lasu,None]-Xsymm[:, None, Lasu:]
         deltx = Xtrue[:,:Lasu,None]-Xtrue[:, None, Lasu:]
@@ -1174,12 +1174,12 @@ class IterativeSimulator(nn.Module):
                     dchiraldxyz, = calc_chiral_grads(xyz.detach(),chirals)
                     #extra_l1 = torch.cat((dljdxyz[0].detach(), dchiraldxyz[0].detach()), dim=1)
                     extra_l1.append(dchiraldxyz[0].detach())
-                extra_l1 = torch.cat(extra_l1, dim=1)
+                extra_l1 = torch.cat(extra_l1, dim=1) if extra_l1 else None
 
                 xyz, state, alpha, quat = self.str_refiner(
                     msa.float(), pair.float(), xyz.detach().float(), state.float(), idx,
-                    rotation_mask, bond_feats,  dist_matrix, atom_frames, 
-                    is_motif, extra_l0, extra_l1.float(), top_k=self.refiner_topk, use_atom_frames=use_atom_frames
+                    rotation_mask, bond_feats,  dist_matrix, atom_frames,
+                    is_motif, extra_l0, extra_l1.float() if extra_l1 is not None else None, top_k=self.refiner_topk, use_atom_frames=use_atom_frames
                 )
 
 
