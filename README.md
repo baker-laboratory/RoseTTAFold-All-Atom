@@ -91,9 +91,9 @@ To enable the ability to run outside of the main directory the following variabl
 This can be done by setting them permanently in your .bashrc or temporarily by running the following commands from the directory with the databases. 
 
 ```
-export DB_UR30=`pwd`/UniRef30_2020_06
-export DB_BFD=`pwd`/bfd/
-export BLASTMAT=`pwd`/blast-2.2.26/data/
+export DB_UR30=$(pwd)/UniRef30_2020_06/UniRef30_2020_06
+export DB_BFD=$(pwd)/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt
+export BLASTMAT=$(pwd)/blast-2.2.26/data/
 ```
 You will also need to set the sequence and hh databases in the config file described below as well as set the path to the weights.
 
