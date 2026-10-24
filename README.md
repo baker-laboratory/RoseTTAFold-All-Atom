@@ -264,7 +264,7 @@ Specifying covalent modifications is slightly more complicated for the following
 - Forming new covalent bonds can create or remove chiral centers. Since RFAA specifies chirality at input, the network needs to be provided with chirality information. Under the hood, chiral centers are identified by a package called Openbabel which does not always agree with chemical intuition. 
 - Covalent modifications often have "leaving groups", or chemical groups that leave both the protein and the modification upon modification. 
 
-The way you input covalent bonds to RFAA is as a comma-separared string of bonds between an atom on the protein and an atom on one of the input small molecules. This is the syntax for those bonds:
+The way you input covalent bonds to RFAA is as a string of bonds between an atom on the protein and an atom on one of the input small molecules. Each bond is a comma-separated record, and multiple bonds are separated by semicolons (see [multiple bonds](#multiple-covale) below). This is the syntax for a single bond:
 ```text
 'protein_chain,residue_number,atom_name:small_molecule_chain,atom_index:new_chirality_atom_1,new_chirality_atom_2'
 ```
@@ -336,9 +336,13 @@ covalent_bonds: Tuple[CovalentBond] = (
   ),
 )
 ```
-For multiple bond input, use semicolons for separating from each other (not seriously tested):
+<a id="multiple-covale"></a>
+For multiple bond input, use semicolons for separating from each other (not seriously tested). Note that `covale_inputs` is always a single string, even for several bonds, and that each bond names its own small molecule chain:
 ```text
 'A,74,ND2:B,1:CW,null;A,423,SG:B,1:null,null'
+```
+```text
+'A,176,ND2:B,5:null,null;A,439,ND2:C,5:null,null'
 ```
 
 
