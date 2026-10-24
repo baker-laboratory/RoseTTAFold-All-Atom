@@ -96,6 +96,8 @@ class CovalentBondsParser:
         Raises:
             ValueError: If the input format is invalid.
         """
+        if not isinstance(self.input, str):
+            raise ValueError(f"covale_inputs must be a single string, got {type(self.input).__name__}.\nSeparate multiple bonds with ';' like `'A,176,ND2:B,5:null,null;A,439,ND2:C,5:null,null'`")
         for sub_input in self.input.split(';'):
             if not (':' in sub_input and ',' in sub_input):
                 raise ValueError(f"Invalid input format: {sub_input=}.\nPlease follow comma-separated pattern like `r'{self.sub_pattern}'`")
